@@ -45,6 +45,7 @@
 		"@auth/sveltekit": "^1.7.4",
 		"drizzle-orm": "^0.38.4",
 		"lucide-svelte": "^0.475.0",
-		"postgres": "^3.4.5"
+		"postgres": "^3.4.5",
+		"zod": "^3.24.2"
 	}
 }
