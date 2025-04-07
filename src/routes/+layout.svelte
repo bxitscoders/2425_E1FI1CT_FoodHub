@@ -2,10 +2,16 @@
 	import "../app.css";
 	import Logo from "$lib/components/Logo.svelte";
 	import type { LayoutProps } from "./$types";
-	import { signIn, signOut } from "$lib/auth-client";
 	import { page } from "$app/state";
+	import { goto } from "$app/navigation";
+	import { authClient } from "$lib/auth-client";
 
 	const { data, children }: LayoutProps = $props();
+
+	async function signOut() {
+		await authClient.signOut();
+		await goto("/", { invalidateAll: true });
+	}
 </script>
 
 <nav class="bg-black text-white sticky top-0 border-white/35 border-b-1 h-15">
@@ -26,7 +32,7 @@
 		{:else}
 			<button
 				onclick={() =>
-					signIn.social({
+					authClient.signIn.social({
 						provider: "github",
 						callbackURL: page.url.pathname
 					})}

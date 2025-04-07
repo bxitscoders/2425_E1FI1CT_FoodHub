@@ -24,5 +24,9 @@ export const auth = betterAuth({
 			mapProfileToUser: (profile: GithubProfile) => ({ handle: profile.login })
 		}
 	},
-	plugins: [userHandlePlugin()]
+	plugins: [userHandlePlugin()],
+	session: {
+		expiresIn: 60 * 60 * 24 * 2, // 2 days
+		updateAge: 60 * 60 * 24 // 1 day (every 1 day the session expiration is updated)
+	}
 });
