@@ -2,9 +2,10 @@
 	import "../app.css";
 	import Logo from "$lib/components/Logo.svelte";
 	import type { LayoutProps } from "./$types";
-	import { signIn, signOut } from "@auth/sveltekit/client"
+	import { signIn, signOut } from "$lib/auth-client";
+	import { page } from "$app/state";
 
-	const { data, children }: LayoutProps  = $props();
+	const { data, children }: LayoutProps = $props();
 </script>
 
 <nav class="bg-black text-white sticky top-0 border-white/35 border-b-1 h-15">
@@ -15,7 +16,7 @@
 			</a>
 		</div>
 
-		{#if data.session?.user}
+		{#if data.session}
 			<div class="flex flex-row gap-4 h-full">
 				<a href="/@{data.session?.user?.handle}" class="h-full">
 					<img class="h-full rounded-full" src={data.session?.user?.image} alt="User" />
@@ -23,11 +24,16 @@
 				<button onclick={() => signOut()}>Log out</button>
 			</div>
 		{:else}
-			<button onclick={() => signIn()}>
+			<button
+				onclick={() =>
+					signIn.social({
+						provider: "github",
+						callbackURL: page.url.pathname
+					})}
+			>
 				<span class="font-medium">Log in</span>
 			</button>
 		{/if}
-
 	</div>
 </nav>
 

@@ -41,8 +41,7 @@
 		"vite": "^6.2.1"
 	},
 	"dependencies": {
-		"@auth/drizzle-adapter": "^1.8.0",
-		"@auth/sveltekit": "^1.8.0",
+		"better-auth": "^1.2.5",
 		"drizzle-orm": "0.40.0",
 		"lucide-svelte": "0.479.0",
 		"postgres": "^3.4.5",
