@@ -2,7 +2,10 @@ import { error, json, type RequestHandler } from "@sveltejs/kit";
 import { type Food, type FoodInDto, FoodInDtoSchema } from "$lib/models/Food";
 import { db } from "$lib/server/db";
 import { foods } from "$lib/server/db/schema";
+import { minioClient } from "$lib/server/minio";
+import { MINIO_BUCKET_NAME } from "$env/static/private";
 import { auth } from "$lib/server/auth";
+import sharp from "sharp";
 
 export const POST: RequestHandler = async ({ request }) => {
 	const session = await auth.api.getSession({ headers: request.headers });
@@ -24,6 +27,11 @@ export const POST: RequestHandler = async ({ request }) => {
 		throw error(400, "Validation error");
 	}
 
+	const optimizedImage = await sharp(Buffer.from(await foodIn.image.arrayBuffer()))
+		.rotate()	
+		.webp({ quality: 80})
+		.toBuffer();
+
 	const food: Food = {
 		title: foodIn.title,
 		message: foodIn.message,
@@ -31,6 +39,13 @@ export const POST: RequestHandler = async ({ request }) => {
 		creatorId: session.user.id!
 	};
 
-	await db.insert(foods).values(food).execute();
-	return json({ });
+	const [insertedFood] = await db.insert(foods).values(food).returning({ id: foods.id }).execute();
+
+	await minioClient.putObject(MINIO_BUCKET_NAME, `${insertedFood.id}.webp`, optimizedImage, foodIn.image.size, {
+		"Content-Type": "image/webp"
+	});
+
+	return json({
+		id: insertedFood.id
+	});
 };
