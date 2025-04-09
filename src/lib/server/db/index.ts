@@ -3,6 +3,7 @@ import postgres from "postgres";
 import { env } from "$env/dynamic/private";
 import * as schema from "./schema";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { building } from "$app/environment";
 
 if (!env.POSTGRES_USER) throw new Error("POSTGRES_USER is not set");
 if (!env.POSTGRES_PASSWORD) throw new Error("POSTGRES_PASSWORD is not set");
@@ -14,4 +15,8 @@ const client = postgres(
 );
 export const db = drizzle(client, { schema });
 
-migrate(db, { migrationsFolder: "drizzle" });
+if (!building) {
+	console.log("Running migrations...");
+	migrate(db, { migrationsFolder: "drizzle" });
+	console.log("Done running migrations");
+}
