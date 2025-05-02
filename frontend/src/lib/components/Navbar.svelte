@@ -10,6 +10,13 @@
 		await authClient.signOut();
 		await goto("/", { invalidateAll: true });
 	}
+
+	async function signIn() {
+		await authClient.signIn.social({
+			provider: "github",
+			callbackURL: page.url.toString()
+		});
+	}
 </script>
 
 <nav class="bg-black text-white sticky top-0 border-white/35 border-b-1 h-15">
@@ -26,18 +33,10 @@
 				<a href="/@{user.handle}" class="h-full">
 					<img class="h-full rounded-full" src={user.image} alt="User" />
 				</a>
-				<button onclick={() => signOut()}>Log out</button>
+				<button class="font-medium" onclick={() => signOut()}>Log out</button>
 			</div>
 		{:else}
-			<button
-				onclick={() =>
-					authClient.signIn.social({
-						provider: "github",
-						callbackURL: page.url.pathname
-					})}
-			>
-				<span class="font-medium">Log in</span>
-			</button>
+			<button class="font-medium" onclick={signIn}>Log in</button>
 		{/if}
 	</div>
 </nav>
