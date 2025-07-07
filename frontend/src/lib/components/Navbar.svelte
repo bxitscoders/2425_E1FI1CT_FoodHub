@@ -33,10 +33,10 @@
 				<a href="/@{user.handle}" class="h-full">
 					<img class="h-full rounded-full" src={user.image} alt="User" />
 				</a>
-				<button class="font-medium" onclick={() => signOut()}>Log out</button>
+				<button class="font-medium cursor-pointer" onclick={() => signOut()}>Log out</button>
 			</div>
 		{:else}
-			<button class="font-medium" onclick={signIn}>Log in</button>
+			<button class="font-medium cursor-pointer" onclick={signIn}>Log in</button>
 		{/if}
 	</div>
 </nav>
