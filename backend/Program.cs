@@ -1,3 +1,5 @@
+using Scalar.AspNetCore;
+
 namespace backend;
 
 public class Program
@@ -5,19 +7,19 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        // Add services to the container.
-
         builder.Services.AddControllers();
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+        // OpenAPI specification via Scalar
         builder.Services.AddOpenApi();
-
         var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+            app.MapScalarApiReference("/swagger", options =>
+            {
+                options.WithTitle("Foodhub Backend API");
+                options.WithTheme(ScalarTheme.Alternate);
+            });
         }
 
         app.UseHttpsRedirection();
