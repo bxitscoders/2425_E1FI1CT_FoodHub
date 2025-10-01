@@ -2,5 +2,8 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-docker-compose.yml
-Dockerfile
+bun.lock
+bun.lockb
+
+# Miscellaneous
+/static/
