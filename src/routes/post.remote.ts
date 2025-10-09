@@ -1,7 +1,7 @@
 import { query } from "$app/server";
 import { db } from "$lib/server/db";
-import { posts } from "$lib/server/db/post-schema";
-import { eq } from "drizzle-orm";
+import { posts, postRatings } from "$lib/server/db/post-schema";
+import { eq, sql } from "drizzle-orm";
 import * as v from 'valibot';
 
 export const loadPosts = query(async () => {
@@ -13,12 +13,7 @@ export const loadPosts = query(async () => {
     return existingPosts;
 });
 
-const PostQueryWithSkipSchema = v.object({
-    index: v.number(),
-    skip: v.number()
-});
-
-export const loadPostsByIndex = query(PostQueryWithSkipSchema, async (schema) => {
+export const loadPostsByIndex = query(v.object({ index: v.number(), skip: v.number() }), async (schema) => {
     const { index, skip } = schema;
     const existingPosts = await db
         .select()
@@ -42,11 +37,28 @@ export const loadPostById = query(v.object({ id: v.number() }), async (schema) =
 export const loadPostsByUserId = query(v.object({ userId: v.string() }), async (schema) => {
     const { userId } = schema;
     const userPosts = await db
-        .select()
+        .select({
+            post: posts,
+            ratingAmount: sql`COUNT(${postRatings.id})`,
+            ratingAverage: sql`AVG(${postRatings.rating})`
+        })
         .from(posts)
+        .leftJoin(postRatings, eq(postRatings.postId, posts.id))
         .where(eq(posts.userId, userId))
+        .groupBy(posts.id)
         .orderBy(posts.createdAt);
-    return userPosts;
+
+    return userPosts.map(r => ({
+        id: r.post.id,
+        creatorUserId: r.post.userId,
+        title: r.post.title,
+        content: r.post.content,
+        createdAt: r.post.createdAt instanceof Date ? r.post.createdAt.getTime() : Number(r.post.createdAt),
+        rating: {
+            amount: Number(r.ratingAmount ?? 0),
+            average: r.ratingAverage ? Number(r.ratingAverage) : 0
+        }
+    })) as PostDTO[];
 });
 
 /* TODO:
