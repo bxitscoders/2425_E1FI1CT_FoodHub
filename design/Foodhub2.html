@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>Foodhub - Essen bewerten</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #181818;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        header {
+            background-color: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 40px;
+            box-shadow: 0 2px 8px rgba(255, 144, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: default;
+        }
+        .logo .food { color: #fff; }
+        .logo .hub { color: #ff9000; }
+        nav a {
+            margin-left: 32px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        nav a:hover {
+            color: #ff9000;
+        }
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            display: block;
+            margin-top: 6px;
+            right: 0;
+            background: #ff9000;
+            transition: width 0.3s ease;
+            -webkit-transition: width 0.3s ease;
+        }
+        nav a:hover::after {
+            width: 100%;
+            left: 0;
+            background: #ff9000;
+        }
+        .search-container {
+            max-width: 920px;
+            margin: 40px auto 20px auto;
+            text-align: center;
+        }
+        .search-container input[type="text"] {
+            width: 72%;
+            padding: 16px 20px;
+            font-size: 18px;
+            border-radius: 30px 0 0 30px;
+            border: none;
+            outline: none;
+            background-color: #222;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+        .search-container input[type="text"]:focus {
+            background-color: #333;
+        }
+        .search-container button {
+            background-color: #ff9000;
+            border: none;
+            color: black;
+            padding: 16px 28px;
+            font-weight: bold;
+            font-size: 18px;
+            border-radius: 0 30px 30px 0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .search-container button:hover {
+            background-color: #e07e00;
+        }
+        .filters {
+            margin: 15px auto 40px auto;
+            max-width: 920px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .filters button {
+            background-color: #222;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #bbb;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .filters button:hover, .filters button.active {
+            background-color: #ff9000;
+            color: black;
+        }
+        .card-container {
+            max-width: 940px;
+            margin: 0 auto 80px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 25px;
+            padding: 0 15px;
+        }
+        .card {
+            background: #222;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 0 8px #ff9000;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.25s ease;
+        }
+        .card:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 15px #ffb84d;
+        }
+        .card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 3px solid #ff9000;
+        }
+        .card .info {
+            padding: 15px 18px 18px 18px;
+        }
+        .card .info h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .card .info .desc {
+            font-size: 14px;
+            color: #bbb;
+            margin: 0 0 12px 0;
+            height: 36px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .score {
+            display: inline-block;
+            padding: 5px 11px;
+            border-radius: 15px;
+            background-color: #ff9000;
+            color: black;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #ddd;
+        }
+        .user img {
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+        }
+        footer {
+            background-color: #000;
+            text-align: center;
+            padding: 18px 10px;
+            font-size: 14px;
+            color: #999;
+            border-top: 1px solid #222;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        footer a {
+            color: #ff9000;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><span class="food">food</span><span class="hub">hub</span></div>
+        <nav>
+            <a href="#">Startseite</a>
+            <a href="#">Top Gerichte</a>
+            <a href="#">Kategorien</a>
+            <a href="#">Bewerten</a>
+            <a href="#">Community</a>
+        </nav>
+    </header>
+    <section class="search-container">
+        <input type="text" placeholder="Suche nach Gerichten, Restaurants oder Usern..." />
+        <button>Suchen</button>
+    </section>
+    <section class="filters">
+        <button class="active">Alle</button>
+        <button>Pizza</button>
+        <button>Burger</button>
+        <button>Vegan</button>
+        <button>Asiatisch</button>
+        <button>Desserts</button>
+    </section>
+    <section class="card-container">
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=400&q=80" alt="Pizza Margherita" />
+            <div class="info">
+                <h3>Pizza Margherita</h3>
+                <div class="desc">Klassische italienische Pizza mit Tomatensauce, Mozzarella und frischem Basilikum.</div>
+                <span class="score">4.8 ★</span>
+                <div class="user">
+                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="User Jan" />
+                    JanK
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1562967916-eb82221dfb32?auto=format&fit=crop&w=400&q=80" alt="Burger Deluxe" />
+            <div class="info">
+                <h3>Burger Deluxe</h3>
+                <div class="desc">Saftiger Beef-Burger mit Cheddar, knusprigem Bacon, Salat und würziger Sauce.</div>
+                <span class="score">4.6 ★</span>
+                <div class="user">
+                    <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User Lisa" />
+                    LisaB
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Veganes Curry" />
+            <div class="info">
+                <h3>Veganes Curry</h3>
+                <div class="desc">Aromatisches Curry mit Kokosmilch, Gemüse und Tofu, perfekt gewürzt.</div>
+                <span class="score">4.9 ★</span>
+                <div class="user">
+                    <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="User Max" />
+                    MaxT
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1543353071-087092ec393b?auto=format&fit=crop&w=400&q=80" alt="Sushi Variation" />
+            <div class="info">
+                <h3>Sushi Variation</h3>
+                <div class="desc">Frisch zubereitetes Sushi mit Lachs, Avocado und Gurke – ein Genuss für jeden Fan.</div>
+                <span class="score">4.7 ★</span>
+                <div class="user">
+                    <img src="https://randomuser.me/api/portraits/women/30.jpg" alt="User Mia" />
+                    MiaS
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        © 2025 Foodhub · <a href="#">Impressum</a> · <a href="#">Datenschutz</a>
+    </footer>
+</body>
+</html>
