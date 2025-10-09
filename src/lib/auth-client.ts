@@ -3,3 +3,5 @@ import { userHandleClientPlugin } from "./auth/plugins/user-handle";
 export const authClient = createAuthClient({
 	plugins: [userHandleClientPlugin()]
 });
+
+export type User = typeof authClient.$Infer.Session.user;
