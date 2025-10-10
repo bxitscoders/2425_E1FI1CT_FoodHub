@@ -5,27 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Foodhub - Bewertung: Trattoria Da Luigi - Pizza Margherita</title>
     <style>
-        body {
+        html, body {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        body {
             background-color: #181818;
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 20px;
         }
         header {
+            width: 100vw;
             background-color: #000;
+            box-shadow: 0 2px 8px rgba(255, 144, 0, 0.3);
+            min-height: 72px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            margin-bottom: 40px;
+        }
+        .header-inner {
+            width: 100%;
+            max-width: 1200px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 14px 40px;
-            box-shadow: 0 2px 8px rgba(255, 144, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            margin-bottom: 40px;
+            box-sizing: border-box;
         }
         .logo {
             font-size: 28px;
@@ -60,6 +75,11 @@
         nav a:hover::after {
             width: 100%;
             left: 0;
+        }
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
         }
         .dish-image {
             width: 100%;
@@ -208,89 +228,93 @@
 </head>
 <body>
     <header>
-        <div class="logo">
-            <span class="food">Food</span><span class="hub">hub</span>
+        <div class="header-inner">
+            <div class="logo">
+                <span class="food">Food</span><span class="hub">hub</span>
+            </div>
+            <nav>
+                <a href="index.html">Startseite</a>
+                <a href="top-gerichte.html">Top Gerichte</a>
+                <a href="kategorien.html">Kategorien</a>
+                <a href="bewerten.html">Bewerten</a>
+                <a href="profil.html">Mein Profil</a>
+            </nav>
         </div>
-        <nav>
-            <a href="index.html">Startseite</a>
-            <a href="top-gerichte.html">Top Gerichte</a>
-            <a href="kategorien.html">Kategorien</a>
-            <a href="bewerten.html">Bewerten</a>
-            <a href="profil.html">Mein Profil</a>
-        </nav>
     </header>
 
-    <div class="dish-image">🍕</div>
+    <div class="main-content">
+        <div class="dish-image">🍕</div>
 
-    <h1 class="dish-name">Pizza Margherita</h1>
-    <div class="restaurant-name">Trattoria Da Luigi, Stuttgart</div>
+        <h1 class="dish-name">Pizza Margherita</h1>
+        <div class="restaurant-name">Trattoria Da Luigi, Stuttgart</div>
 
-    <div class="rating-summary">
-        <div class="rating-score">4.7</div>
-        <div class="stars">★★★★☆</div>
-        <div class="reviews-count">(128 Bewertungen)</div>
-    </div>
+        <div class="rating-summary">
+            <div class="rating-score">4.7</div>
+            <div class="stars">★★★★☆</div>
+            <div class="reviews-count">(128 Bewertungen)</div>
+        </div>
 
-    <div class="extra-stats">
-        <div class="extra-stat-item">
-            <div class="extra-stat-label">Bewertungen insgesamt</div>
-            <div class="extra-stat-value">128</div>
-        </div>
-        <div class="extra-stat-item">
-            <div class="extra-stat-label">Würden wiederkommen</div>
-            <div class="extra-stat-value">85%</div>
-        </div>
-        <div class="extra-stat-item">
-            <div class="extra-stat-label">Servicebewertung</div>
-            <div class="extra-stat-value">4.5 ★</div>
-        </div>
-        <div class="extra-stat-item">
-            <div class="extra-stat-label">Preisniveau</div>
-            <div class="extra-stat-value">€€ - Mittel</div>
-        </div>
-    </div>
-
-    <div class="review-list">
-        <div class="review-card">
-            <div class="review-header">
-                <div class="user-info">
-                    <div class="user-avatar">M</div>
-                    <div class="user-name">Max Mustermann</div>
-                </div>
-                <div>
-                    <div class="review-date">vor 3 Tagen</div>
-                    <div class="review-stars">★★★★★</div>
-                </div>
+        <div class="extra-stats">
+            <div class="extra-stat-item">
+                <div class="extra-stat-label">Bewertungen insgesamt</div>
+                <div class="extra-stat-value">128</div>
             </div>
-            <div class="review-text">Sehr leckere Pizza, knuspriger Boden und frischer Belag. Sehr empfehlenswert!</div>
+            <div class="extra-stat-item">
+                <div class="extra-stat-label">Würden wiederkommen</div>
+                <div class="extra-stat-value">85%</div>
+            </div>
+            <div class="extra-stat-item">
+                <div class="extra-stat-label">Servicebewertung</div>
+                <div class="extra-stat-value">4.5 ★</div>
+            </div>
+            <div class="extra-stat-item">
+                <div class="extra-stat-label">Preisniveau</div>
+                <div class="extra-stat-value">€€ - Mittel</div>
+            </div>
         </div>
 
-        <div class="review-card">
-            <div class="review-header">
-                <div class="user-info">
-                    <div class="user-avatar">L</div>
-                    <div class="user-name">Lisa B.</div>
+        <div class="review-list">
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="user-info">
+                        <div class="user-avatar">M</div>
+                        <div class="user-name">Max Mustermann</div>
+                    </div>
+                    <div>
+                        <div class="review-date">vor 3 Tagen</div>
+                        <div class="review-stars">★★★★★</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="review-date">vor 7 Tagen</div>
-                    <div class="review-stars">★★★★☆</div>
-                </div>
+                <div class="review-text">Sehr leckere Pizza, knuspriger Boden und frischer Belag. Sehr empfehlenswert!</div>
             </div>
-            <div class="review-text">Authentische italienische Pizza, jedoch etwas zu viel Käse für meinen Geschmack.</div>
-        </div>
 
-        <div class="review-card">
-            <div class="review-header">
-                <div class="user-info">
-                    <div class="user-avatar">D</div>
-                    <div class="user-name">DJ DaLohyn</div>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="user-info">
+                        <div class="user-avatar">L</div>
+                        <div class="user-name">Lisa B.</div>
+                    </div>
+                    <div>
+                        <div class="review-date">vor 7 Tagen</div>
+                        <div class="review-stars">★★★★☆</div>
+                    </div>
                 </div>
-                <div>
-                    <div class="review-date">vor 2 Wochen</div>
-                    <div class="review-stars">★★★★★</div>
-                </div>
+                <div class="review-text">Authentische italienische Pizza, jedoch etwas zu viel Käse für meinen Geschmack.</div>
             </div>
-            <div class="review-text">Beste Pizza in Stuttgart! Perfekt nach einem langen Tag und immer wieder gerne!</div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="user-info">
+                        <div class="user-avatar">D</div>
+                        <div class="user-name">DJ DaLohyn</div>
+                    </div>
+                    <div>
+                        <div class="review-date">vor 2 Wochen</div>
+                        <div class="review-stars">★★★★★</div>
+                    </div>
+                </div>
+                <div class="review-text">Beste Pizza in Stuttgart! Perfekt nach einem langen Tag und immer wieder gerne!</div>
+            </div>
         </div>
     </div>
 
