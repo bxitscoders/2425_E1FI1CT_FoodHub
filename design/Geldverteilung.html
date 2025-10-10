@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodhub - Burger Clicker 💰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background-color: #181818;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        header {
+            background-color: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 40px;
+            box-shadow: 0 2px 8px rgba(255, 144, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: default;
+        }
+        .logo .food { color: #fff; }
+        .logo .hub { color: #ff9000; }
+        nav a {
+            margin-left: 32px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        nav a:hover {
+            color: #ff9000;
+        }
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .clicker-area {
+            background-color: #222;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+        }
+        .money-counter {
+            font-size: 56px;
+            font-weight: bold;
+            color: #ff9000;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(255, 144, 0, 0.5);
+        }
+        .income-display {
+            color: #aaa;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        .burger-btn {
+            width: 280px;
+            height: 280px;
+            font-size: 160px;
+            background: radial-gradient(circle, #ff9000, #e07e00);
+            border: 8px solid #ff9000;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            box-shadow: 0 10px 40px rgba(255, 144, 0, 0.6);
+        }
+        .burger-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 50px rgba(255, 144, 0, 0.8);
+        }
+        .burger-btn:active {
+            transform: scale(0.92);
+        }
+        .click-info {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 16px;
+        }
+        .click-value {
+            color: #ff9000;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .upgrades-list {
+            background-color: #222;
+            border-radius: 15px;
+            padding: 25px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .upgrades-list h3 {
+            margin-top: 0;
+            color: #ff9000;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .upgrade-item {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #333;
+        }
+        .upgrade-item:hover:not(.disabled) {
+            border-color: #ff9000;
+            transform: translateX(8px);
+            background-color: #333;
+        }
+        .upgrade-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .upgrade-icon {
+            font-size: 45px;
+            margin-right: 18px;
+            min-width: 50px;
+        }
+        .upgrade-info {
+            flex: 1;
+        }
+        .upgrade-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        .upgrade-stats {
+            font-size: 13px;
+            color: #aaa;
+        }
+        .upgrade-cost {
+            background-color: #ff9000;
+            color: #000;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .distribution-panel {
+            background-color: #222;
+            border-radius: 15px;
+            padding: 25px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .distribution-panel h2 {
+            margin-top: 0;
+            color: #ff9000;
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .total-earned {
+            background: linear-gradient(135deg, #ff9000, #e07e00);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(255, 144, 0, 0.4);
+        }
+        .total-earned-label {
+            color: #000;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .total-earned-amount {
+            color: #000;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .contributor {
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+            border-left: 5px solid #ff9000;
+            transition: all 0.3s ease;
+        }
+        .contributor:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(255, 144, 0, 0.3);
+        }
+        .contributor.ceo {
+            border-left-color: #ffd700;
+            background: linear-gradient(135deg, #2a2a2a, #3a3a2a);
+        }
+        .contributor.co-ceo {
+            border-left-color: #c0c0c0;
+        }
+        .contributor.bettler {
+            border-left-color: #cd7f32;
+            opacity: 0.9;
+        }
+        .contributor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .contributor-icon {
+            font-size: 40px;
+            margin-right: 15px;
+        }
+        .contributor-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .contributor-role {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .money-earned {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff9000;
+            margin: 12px 0;
+        }
+        .percentage-bar {
+            background-color: #333;
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .percentage-fill {
+            background: linear-gradient(90deg, #ff9000, #ffb347);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        .percentage-text {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+        .click-effect {
+            position: fixed;
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff9000;
+            pointer-events: none;
+            animation: floatUp 1.2s ease-out forwards;
+            z-index: 1000;
+            text-shadow: 0 0 10px rgba(255, 144, 0, 0.8);
+        }
+        @keyframes floatUp {
+            to {
+                transform: translateY(-120px);
+                opacity: 0;
+            }
+        }
+        .stats-box {
+            background-color: #222;
+            border-radius: 15px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff9000;
+        }
+        .reset-btn {
+            background-color: #ff3333;
+            border: none;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        .reset-btn:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+        @media (max-width: 1200px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="food">Food</span><span class="hub">hub</span>
+        </div>
+        <nav>
+            <a href="Foodhub2.html">Startseite</a>
+            <a href="Rangliste.html">Top Gerichte</a>
+            <a href="Kategorien.html">Kategorien</a>
+            <a href="Upload.html">Bewerten</a>
+        </nav>
+    </header>
+
+    <div class="game-layout">
+        <div class="left-panel">
+            <div class="clicker-area">
+                <div class="money-counter" id="money">0 €</div>
+                <div class="income-display" id="income">+0 €/Sek</div>
+                <button class="burger-btn" id="burgerBtn">🍔</button>
+                <div class="click-info">
+                    Klick-Wert: <span class="click-value" id="clickValue">1 €</span>
+                </div>
+            </div>
+
+            <div class="stats-box">
+                <div class="stat-item">
+                    <div class="stat-label">Gesamt-Klicks</div>
+                    <div class="stat-value" id="totalClicks">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Upgrades</div>
+                    <div class="stat-value" id="totalUpgrades">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">€ pro Klick</div>
+                    <div class="stat-value" id="perClick">1</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">€ pro Sekunde</div>
+                    <div class="stat-value" id="perSecond">0</div>
+                </div>
+            </div>
+
+            <div class="upgrades-list">
+                <h3>🛒 Upgrades kaufen</h3>
+                <div id="upgradesContainer"></div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="distribution-panel">
+                <h2>💰 Geldverteilung</h2>
+                <div class="total-earned">
+                    <div class="total-earned-label">GESAMTUMSATZ</div>
+                    <div class="total-earned-amount" id="totalEarnedDisplay">0 €</div>
+                </div>
+                <div id="distributionContainer"></div>
+                <button class="reset-btn" onclick="resetGame()">🔄 Spiel zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let money = 0;
+        let clickValue = 1;
+        let incomePerSecond = 0;
+        let totalEarned = 0;
+        let totalClicks = 0;
+        let totalUpgradesBought = 0;
+
+        // Team Members - Janik 50%, Niklas 40%, Christian 10%
+        const team = [
+            { 
+                id: 'janik', 
+                name: 'Janik', 
+                icon: '👑', 
+                role: 'CEO & Gründer', 
+                share: 0.50,
+                class: 'ceo'
+            },
+            { 
+                id: 'niklas', 
+                name: 'Niklas', 
+                icon: '⭐', 
+                role: 'Co-CEO', 
+                share: 0.40,
+                class: 'co-ceo'
+            },
+            { 
+                id: 'christian', 
+                name: 'Christian', 
+                icon: '🤲', 
+                role: 'Bettler', 
+                share: 0.10,
+                class: 'bettler'
+            }
+        ];
+
+        // Upgrades - Komplett ausbalanciert und spielbar
+        const upgrades = [
+            {
+                id: 'cursor',
+                icon: '👆',
+                name: 'Besserer Finger',
+                description: 'Stärkere Klicks',
+                baseIncome: 0,
+                clickBonus: 1,
+                baseCost: 15,
+                multiplier: 1.15,
+                owned: 0
+            },
+            {
+                id: 'cursor2',
+                icon: '✌️',
+                name: 'Zwei Finger',
+                description: 'Noch stärkere Klicks',
+                baseIncome: 0,
+                clickBonus: 5,
+                baseCost: 100,
+                multiplier: 1.2,
+                owned: 0
+            },
+            {
+                id: 'chef',
+                icon: '👨‍🍳',
+                name: 'Koch',
+                description: 'Automatisches Einkommen',
+                baseIncome: 1,
+                clickBonus: 0,
+                baseCost: 50,
+                multiplier: 1.15,
+                owned: 0
+            },
+            {
+                id: 'waiter',
+                icon: '💁',
+                name: 'Kellner',
+                description: 'Bedient Gäste',
+                baseIncome: 5,
+                clickBonus: 0,
+                baseCost: 250,
+                multiplier: 1.18,
+                owned: 0
+            },
+            {
+                id: 'oven',
+                icon: '🔥',
+                name: 'Profi-Grill',
+                description: 'Schnellere Zubereitung',
+                baseIncome: 20,
+                clickBonus: 0,
+                baseCost: 1200,
+                multiplier: 1.22,
+                owned: 0
+            },
+            {
+                id: 'dishwasher',
+                icon: '🍽️',
+                name: 'Spülmaschine',
+                description: 'Schnelles Abwaschen',
+                baseIncome: 50,
+                clickBonus: 0,
+                baseCost: 4000,
+                multiplier: 1.24,
+                owned: 0
+            },
+            {
+                id: 'foodtruck',
+                icon: '🚚',
+                name: 'Food Truck',
+                description: 'Mobile Küche',
+                baseIncome: 150,
+                clickBonus: 0,
+                baseCost: 15000,
+                multiplier: 1.26,
+                owned: 0
+            },
+            {
+                id: 'restaurant',
+                icon: '🏪',
+                name: 'Restaurant',
+                description: 'Eigenes Restaurant',
+                baseIncome: 500,
+                clickBonus: 0,
+                baseCost: 60000,
+                multiplier: 1.28,
+                owned: 0
+            },
+            {
+                id: 'chain',
+                icon: '🏢',
+                name: 'Restaurant-Kette',
+                description: 'Mehrere Standorte',
+                baseIncome: 2000,
+                clickBonus: 0,
+                baseCost: 250000,
+                multiplier: 1.3,
+                owned: 0
+            },
+            {
+                id: 'franchise',
+                icon: '🌎',
+                name: 'Franchise',
+                description: 'Weltweite Expansion',
+                baseIncome: 8000,
+                clickBonus: 0,
+                baseCost: 1000000,
+                multiplier: 1.32,
+                owned: 0
+            }
+        ];
+
+        // Functions
+        function getCost(upgrade) {
+            return Math.floor(upgrade.baseCost * Math.pow(upgrade.multiplier, upgrade.owned));
+        }
+
+        function calculateIncome() {
+            clickValue = 1;
+            incomePerSecond = 0;
+            
+            upgrades.forEach(upgrade => {
+                clickValue += upgrade.clickBonus * upgrade.owned;
+                incomePerSecond += upgrade.baseIncome * upgrade.owned;
+            });
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = upgrades.find(u => u.id === upgradeId);
+            const cost = getCost(upgrade);
+            
+            if (money >= cost) {
+                money -= cost;
+                upgrade.owned++;
+                totalUpgradesBought++;
+                calculateIncome();
+                renderUpgrades();
+                updateDisplay();
+                saveGame();
+            }
+        }
+
+        function handleClick(e) {
+            money += clickValue;
+            totalEarned += clickValue;
+            totalClicks++;
+            updateDisplay();
+            updateDistribution();
+            
+            // Visual effect
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.textContent = '+' + clickValue + '€';
+            effect.style.left = e.clientX + 'px';
+            effect.style.top = e.clientY + 'px';
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 1200);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(2) + 'B';
+            } else if (num >= 1000000) {
+                return (num / 1000000).toFixed(2) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return Math.floor(num).toLocaleString('de-DE');
+        }
+
+        function updateDisplay() {
+            document.getElementById('money').textContent = formatNumber(money) + ' €';
+            document.getElementById('income').textContent = '+' + formatNumber(incomePerSecond) + ' €/Sek';
+            document.getElementById('clickValue').textContent = formatNumber(clickValue) + ' €';
+            document.getElementById('totalClicks').textContent = totalClicks.toLocaleString('de-DE');
+            document.getElementById('totalUpgrades').textContent = totalUpgradesBought;
+            document.getElementById('perClick').textContent = formatNumber(clickValue);
+            document.getElementById('perSecond').textContent = formatNumber(incomePerSecond);
+            document.getElementById('totalEarnedDisplay').textContent = formatNumber(totalEarned) + ' €';
+        }
+
+        function updateDistribution() {
+            const container = document.getElementById('distributionContainer');
+            container.innerHTML = '';
+
+            team.forEach(member => {
+                const earned = totalEarned * member.share;
+                const percentage = (member.share * 100).toFixed(0);
+
+                const div = document.createElement('div');
+                div.className = 'contributor ' + member.class;
+                div.innerHTML = `
+                    <div class="contributor-header">
+                        <div class="contributor-icon">${member.icon}</div>
+                        <div>
+                            <div class="contributor-name">${member.name}</div>
+                            <div class="contributor-role">${member.role}</div>
+                        </div>
+                    </div>
+                    <div class="money-earned">${formatNumber(earned)} €</div>
+                    <div class="percentage-bar">
+                        <div class="percentage-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="percentage-text">${percentage}% vom Gesamtumsatz</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('upgradesContainer');
+            container.innerHTML = '';
+
+            upgrades.forEach(upgrade => {
+                const cost = getCost(upgrade);
+                const canAfford = money >= cost;
+                
+                let effectText = '';
+                if (upgrade.clickBonus > 0 && upgrade.owned > 0) {
+                    effectText = `+${(upgrade.clickBonus * upgrade.owned).toLocaleString('de-DE')} € Klick`;
+                } else if (upgrade.clickBonus > 0) {
+                    effectText = `+${upgrade.clickBonus} € pro Klick`;
+                } else if (upgrade.owned > 0) {
+                    effectText = `+${(upgrade.baseIncome * upgrade.owned).toLocaleString('de-DE')} €/Sek`;
+                } else {
+                    effectText = `+${upgrade.baseIncome} €/Sek`;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'upgrade-item' + (canAfford ? '' : ' disabled');
+                div.onclick = () => canAfford && buyUpgrade(upgrade.id);
+                
+                div.innerHTML = `
+                    <div class="upgrade-icon">${upgrade.icon}</div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">${upgrade.name}</div>
+                        <div class="upgrade-stats">${effectText} | Besitz: ${upgrade.owned}</div>
+                    </div>
+                    <div class="upgrade-cost">${formatNumber(cost)} €</div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function saveGame() {
+            const saveData = {
+                money,
+                totalEarned,
+                totalClicks,
+                totalUpgradesBought,
+                upgrades: upgrades.map(u => ({ id: u.id, owned: u.owned }))
+            };
+            localStorage.setItem('burgerClickerSave', JSON.stringify(saveData));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('burgerClickerSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                money = data.money || 0;
+                totalEarned = data.totalEarned || 0;
+                totalClicks = data.totalClicks || 0;
+                totalUpgradesBought = data.totalUpgradesBought || 0;
+                
+                if (data.upgrades) {
+                    data.upgrades.forEach(savedUpgrade => {
+                        const upgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                        if (upgrade) upgrade.owned = savedUpgrade.owned;
+                    });
+                }
+                
+                calculateIncome();
+                renderUpgrades();
+                updateDisplay();
+                updateDistribution();
+            }
+        }
+
+        function resetGame() {
+            if (confirm('Möchtest du wirklich alle Fortschritte zurücksetzen?')) {
+                money = 0;
+                totalEarned = 0;
+                totalClicks = 0;
+                totalUpgradesBought = 0;
+                clickValue = 1;
+                incomePerSecond = 0;
+                
+                upgrades.forEach(upgrade => {
+                    upgrade.owned = 0;
+                });
+                
+                localStorage.removeItem('burgerClickerSave');
+                calculateIncome();
+                renderUpgrades();
+                updateDisplay();
+                updateDistribution();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('burgerBtn').addEventListener('click', handleClick);
+
+        // Game Loop - 10 Updates pro Sekunde
+        setInterval(() => {
+            const increment = incomePerSecond / 10;
+            money += increment;
+            totalEarned += increment;
+            updateDisplay();
+            updateDistribution();
+            renderUpgrades();
+        }, 100);
+
+        // Auto-Save alle 5 Sekunden
+        setInterval(() => {
+            saveGame();
+        }, 5000);
+
+        // Initial load
+        window.addEventListener('load', () => {
+            loadGame();
+        });
+
+        // Initial render
+        calculateIncome();
+        renderUpgrades();
+        updateDisplay();
+        updateDistribution();
+    </script>
+</body>
+</html>
