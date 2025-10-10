@@ -200,24 +200,31 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 144, 0, 0.5);
         }
-        .rating-stars {
+        .rating-container {
             display: flex;
-            gap: 10px;
+            gap: 5px;
             font-size: 40px;
         }
-        .rating-stars span {
+        .star-wrapper {
+            position: relative;
             cursor: pointer;
-            color: #444;
-            transition: color 0.2s ease;
+            display: inline-block;
         }
-        .rating-stars span:hover,
-        .rating-stars span.active {
+        .star-empty {
+            color: #444;
+        }
+        .star-filled {
+            position: absolute;
+            top: 0;
+            left: 0;
             color: #ff9000;
+            overflow: hidden;
+            transition: width 0.2s ease;
         }
         .rating-label {
             margin-top: 10px;
-            font-size: 14px;
-            color: #999;
+            font-size: 16px;
+            color: #bbb;
             text-align: center;
         }
         .price-input {
@@ -314,19 +321,13 @@
                 </select>
             </div>
 
-            <!-- Bewertung -->
+            <!-- Bewertung mit halben Sternen -->
             <div class="form-group">
                 <label class="form-label">
                     Deine Bewertung <span class="required">*</span>
                 </label>
-                <div class="rating-stars" id="rating-stars">
-                    <span data-rating="1">★</span>
-                    <span data-rating="2">★</span>
-                    <span data-rating="3">★</span>
-                    <span data-rating="4">★</span>
-                    <span data-rating="5">★</span>
-                </div>
-                <div class="rating-label" id="rating-label">Klicke auf die Sterne zum Bewerten</div>
+                <div class="rating-container" id="rating-container"></div>
+                <div class="rating-label" id="rating-label">Klicke auf die Sterne zum Bewerten (halbe Sterne möglich)</div>
             </div>
 
             <!-- Beschreibung -->
@@ -449,45 +450,89 @@
             }
         }
 
-        // Rating Funktionalität
-        const ratingStars = document.querySelectorAll('#rating-stars span');
+        // Halbe Sterne Rating System
+        const ratingContainer = document.getElementById('rating-container');
         const ratingLabel = document.getElementById('rating-label');
         let selectedRating = 0;
+        const totalStars = 5;
 
         const ratingTexts = {
-            0: 'Klicke auf die Sterne zum Bewerten',
+            0: 'Klicke auf die Sterne zum Bewerten (halbe Sterne möglich)',
+            0.5: '0.5 Sterne - Sehr schlecht',
             1: '1 Stern - Sehr schlecht',
+            1.5: '1.5 Sterne - Schlecht',
             2: '2 Sterne - Schlecht',
+            2.5: '2.5 Sterne - Geht so',
             3: '3 Sterne - Okay',
+            3.5: '3.5 Sterne - Gut',
             4: '4 Sterne - Gut',
+            4.5: '4.5 Sterne - Sehr gut',
             5: '5 Sterne - Ausgezeichnet!'
         };
 
-        ratingStars.forEach(star => {
-            star.addEventListener('click', function() {
-                selectedRating = this.getAttribute('data-rating');
+        // Erstelle Sterne
+        for (let i = 0; i < totalStars; i++) {
+            const starWrapper = document.createElement('div');
+            starWrapper.className = 'star-wrapper';
+            starWrapper.innerHTML = `
+                <span class="star-empty">★</span>
+                <span class="star-filled" style="width: 0%;">★</span>
+            `;
+            starWrapper.dataset.index = i;
+            ratingContainer.appendChild(starWrapper);
+        }
+
+        // Event Listeners für Sterne
+        const starWrappers = document.querySelectorAll('.star-wrapper');
+
+        starWrappers.forEach((wrapper, index) => {
+            wrapper.addEventListener('click', (e) => {
+                const rect = wrapper.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const halfWidth = rect.width / 2;
+                
+                if (clickX < halfWidth) {
+                    selectedRating = index + 0.5;
+                } else {
+                    selectedRating = index + 1;
+                }
+                
                 updateRating(selectedRating);
                 ratingLabel.textContent = ratingTexts[selectedRating];
             });
 
-            star.addEventListener('mouseenter', function() {
-                const rating = this.getAttribute('data-rating');
-                updateRating(rating);
-                ratingLabel.textContent = ratingTexts[rating];
+            wrapper.addEventListener('mousemove', (e) => {
+                const rect = wrapper.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const halfWidth = rect.width / 2;
+                
+                let hoverRating;
+                if (mouseX < halfWidth) {
+                    hoverRating = index + 0.5;
+                } else {
+                    hoverRating = index + 1;
+                }
+                
+                updateRating(hoverRating);
+                ratingLabel.textContent = ratingTexts[hoverRating];
             });
         });
 
-        document.getElementById('rating-stars').addEventListener('mouseleave', () => {
+        ratingContainer.addEventListener('mouseleave', () => {
             updateRating(selectedRating);
-            ratingLabel.textContent = ratingTexts[selectedRating];
+            ratingLabel.textContent = ratingTexts[selectedRating] || ratingTexts[0];
         });
 
         function updateRating(rating) {
-            ratingStars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
+            starWrappers.forEach((wrapper, index) => {
+                const filledStar = wrapper.querySelector('.star-filled');
+                
+                if (rating >= index + 1) {
+                    filledStar.style.width = '100%';
+                } else if (rating > index && rating < index + 1) {
+                    filledStar.style.width = '50%';
                 } else {
-                    star.classList.remove('active');
+                    filledStar.style.width = '0%';
                 }
             });
         }
@@ -499,7 +544,7 @@
                 alert('Bitte vergib eine Bewertung!');
                 return;
             }
-            alert('Bewertung erfolgreich veröffentlicht! 🎉');
+            alert(`Bewertung erfolgreich veröffentlicht! 🎉\nDeine Bewertung: ${selectedRating} Sterne`);
         });
     </script>
 </body>
