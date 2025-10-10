@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Foodhub - Top Gerichte</title>
+<style>
+    body {
+        margin: 0;
+        background-color: #181818;
+        color: #fff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 0;
+    }
+    header {
+        width: 100vw;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        box-shadow: 0 2px 10px rgba(255, 144, 0, 0.32);
+        position: relative;
+        margin-bottom: 24px;
+        min-height: 74px;
+    }
+    .header-inner {
+        width: 100%;
+        max-width: 1200px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 40px;
+        box-sizing: border-box;
+    }
+    .logo {
+        font-size: 28px;
+        font-weight: bold;
+        cursor: default;
+    }
+    .logo .food { color: #fff; }
+    .logo .hub { color: #ff9000; }
+    nav a {
+        margin-left: 32px;
+        font-weight: 600;
+        font-size: 16px;
+        color: #ddd;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+    nav a:hover {
+        color: #ff9000;
+    }
+    nav a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        display: block;
+        margin-top: 6px;
+        right: 0;
+        background: #ff9000;
+        transition: width 0.3s ease;
+    }
+    nav a:hover::after {
+        width: 100%;
+        left: 0;
+    }
+    .main-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .filter-container {
+        background: #222;
+        padding: 18px 24px 12px 24px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(255,144,0,0.14);
+        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        align-items: center;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 160px;
+    }
+    .filter-group label {
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    .filter-group select,
+    .filter-group input {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        background-color: #333;
+        color: #fff;
+        outline: none;
+        font-size: 15px;
+        min-width: 120px;
+        transition: background 0.3s ease;
+    }
+    .filter-group select:hover,
+    .filter-group input:hover,
+    .filter-group select:focus,
+    .filter-group input:focus {
+        background: #444;
+    }
+    h1 {
+        font-size: 38px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .ranking-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .ranking-item {
+        background: #222;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(255,144,0,0.3);
+        cursor: pointer;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .ranking-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(255,144,0,0.6);
+    }
+    .ranking-img {
+        background: linear-gradient(135deg, #ff9000, #e07e00);
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 100px;
+        color: white;
+        border-bottom: 3px solid #ff9000;
+    }
+    .ranking-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .ranking-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    .ranking-restaurant {
+        font-size: 18px;
+        color: #ff9000;
+        margin-bottom: 10px;
+    }
+    .ranking-desc {
+        font-size: 14px;
+        color: #bbb;
+        margin-bottom: 15px;
+    }
+    .ranking-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .ranking-rating {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ff9000;
+    }
+    .ranking-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ddd;
+    }
+    footer {
+        background-color: #000;
+        text-align: center;
+        padding: 18px 10px;
+        font-size: 14px;
+        color: #999;
+        border-top: 1px solid #222;
+        margin-top: 60px;
+    }
+    footer a {
+        color: #ff9000;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+</head>
+<body>
+<header>
+    <div class="header-inner">
+        <div class="logo">
+            <span class="food">Food</span><span class="hub">hub</span>
+        </div>
+        <nav>
+            <a href="index.html">Startseite</a>
+            <a href="top-gerichte.html">Top Gerichte</a>
+            <a href="kategorien.html">Kategorien</a>
+            <a href="bewerten.html">Bewerten</a>
+            <a href="profil.html">Mein Profil</a>
+        </nav>
+    </div>
+</header>
+
+<div class="main-content">
+<div class="filter-container">
+    <div class="filter-group">
+        <label for="categoryFilter">Kategorie</label>
+        <select id="categoryFilter">
+            <option value="">Alle</option>
+            <option value="pizza">Pizza</option>
+            <option value="burger">Burger</option>
+            <option value="pasta">Pasta</option>
+            <option value="salat">Salat</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="ratingFilter">Bewertung</label>
+        <select id="ratingFilter">
+            <option value="">Alle</option>
+            <option value="4">4 Sterne & höher</option>
+            <option value="4.5">4,5 Sterne & höher</option>
+            <option value="5">5 Sterne</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="priceInput">Max. Preis (€)</label>
+        <input type="number" id="priceInput" min="0" step="0.1" placeholder="z.B. 12.50" />
+    </div>
+</div>
+
+<h1>Top Gerichte</h1>
+
+<div class="ranking-list" id="rankingList">
+    <div class="ranking-item" data-category="pizza" data-rating="4.8" data-price="9.5">
+        <div class="ranking-img">🍕</div>
+        <div class="ranking-content">
+            <div class="ranking-title">Pizza Margherita</div>
+            <div class="ranking-restaurant">Trattoria Luigi</div>
+            <div class="ranking-desc">Frische Zutaten und perfekter Boden.</div>
+            <div class="ranking-info">
+                <div class="ranking-rating">4.8 ★</div>
+                <div class="ranking-price">9,50 €</div>
+            </div>
+        </div>
+    </div>
+    <div class="ranking-item" data-category="burger" data-rating="4.7" data-price="8.9">
+        <div class="ranking-img">🍔</div>
+        <div class="ranking-content">
+            <div class="ranking-title">Smash Burger</div>
+            <div class="ranking-restaurant">Burger Lab</div>
+            <div class="ranking-desc">Saftig und herzhaft mit hochwertigen Zutaten.</div>
+            <div class="ranking-info">
+                <div class="ranking-rating">4.7 ★</div>
+                <div class="ranking-price">8,90 €</div>
+            </div>
+        </div>
+    </div>
+    <div class="ranking-item" data-category="pasta" data-rating="4.9" data-price="12.5">
+        <div class="ranking-img">🍝</div>
+        <div class="ranking-content">
+            <div class="ranking-title">Carbonara</div>
+            <div class="ranking-restaurant">La Pasta</div>
+            <div class="ranking-desc">Cremige Soße mit frischem Parmesan.</div>
+            <div class="ranking-info">
+                <div class="ranking-rating">4.9 ★</div>
+                <div class="ranking-price">12,50 €</div>
+            </div>
+        </div>
+    </div>
+    <div class="ranking-item" data-category="salat" data-rating="4.5" data-price="7.5">
+        <div class="ranking-img">🥗</div>
+        <div class="ranking-content">
+            <div class="ranking-title">Caesar Salat</div>
+            <div class="ranking-restaurant">Green Bite</div>
+            <div class="ranking-desc">Frischer Salat mit leckerem Dressing.</div>
+            <div class="ranking-info">
+                <div class="ranking-rating">4.5 ★</div>
+                <div class="ranking-price">7,50 €</div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+const categoryFilter = document.getElementById('categoryFilter');
+const ratingFilter = document.getElementById('ratingFilter');
+const priceInput = document.getElementById('priceInput');
+const rankingList = document.getElementById('rankingList');
+const items = rankingList.querySelectorAll('.ranking-item');
+
+categoryFilter.addEventListener('change', filterItems);
+ratingFilter.addEventListener('change', filterItems);
+priceInput.addEventListener('input', filterItems);
+
+function filterItems() {
+    const selectedCategory = categoryFilter.value;
+    const selectedRating = parseFloat(ratingFilter.value);
+    const maxPrice = parseFloat(priceInput.value);
+
+    items.forEach(item => {
+        const category = item.getAttribute('data-category');
+        const rating = parseFloat(item.getAttribute('data-rating'));
+        const price = parseFloat(item.getAttribute('data-price'));
+
+        let visible = true;
+        if (selectedCategory && category !== selectedCategory) visible = false;
+        if (selectedRating && rating < selectedRating) visible = false;
+        if (!isNaN(maxPrice) && price > maxPrice) visible = false;
+        item.style.display = visible ? 'flex' : 'none';
+    });
+}
+</script>
+
+<footer>
+    &copy; 2025 Foodhub | <a href="#">Impressum</a> | <a href="#">Datenschutz</a>
+</footer>
+</body>
+</html>
