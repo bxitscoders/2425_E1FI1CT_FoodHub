@@ -1,5 +1,5 @@
 <script>
-	import Post from "$lib/components/Post.svelte";
+	import PostSummary from "$lib/components/posts/PostSummary.svelte";
 	import { loadPosts } from "./post.remote";
 </script>
 
@@ -7,6 +7,6 @@
     <p>Loading...</p>
 {:then posts}
     {#each posts as post}
-        <Post {post} />
+        <PostSummary {post} />
     {/each}
 {/await}

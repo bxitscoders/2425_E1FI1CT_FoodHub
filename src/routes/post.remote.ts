@@ -4,7 +4,6 @@ import { posts, postRatings } from "$lib/server/db/post-schema";
 import { MINIO_BUCKET_NAME, minioClient } from "$lib/server/minio";
 import { error } from "@sveltejs/kit";
 import { eq, sql } from "drizzle-orm";
-import { title } from "process";
 import sharp from "sharp";
 import * as v from "valibot";
 
@@ -149,3 +148,20 @@ export const createPost = form(
 		return newPost;
 	}
 );
+
+export const loadImageByPostId = query(v.object({ postId: v.number() }), async (schema) => {
+    const { postId } = schema;
+
+    const post = await db
+        .select({ id: posts.id })
+        .from(posts)
+        .where(eq(posts.id, postId));
+    if (!post || post.length === 0) return null;
+
+    const presignedUrl = await minioClient.presignedGetObject(
+        MINIO_BUCKET_NAME,
+        post[0].id.toString() + ".webp",
+        3600
+    );
+    return presignedUrl;
+})
