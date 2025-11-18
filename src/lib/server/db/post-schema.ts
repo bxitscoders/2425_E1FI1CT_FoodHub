@@ -1,30 +1,26 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { user } from "./auth-schema";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { user } from "./auth-schema";
 
-export const posts = sqliteTable("posts", {
-    id: integer("id").primaryKey({ autoIncrement: true }),
-    userId: text("user_id")
-        .notNull()
-        .references(() => user.id),
-    title: text("title").notNull(),
-    content: text("content").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-        .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-        .notNull()
+export const posts = pgTable("posts", {
+	id: serial("id").primaryKey(),
+	userId: text("user_id", {})
+		.notNull()
+		.references(() => user.id),
+	title: text("title").notNull(),
+	content: text("content").notNull(),
+	createdAt: timestamp("created_at").default(sql`now()`)
 });
 
-export const postRatings = sqliteTable("post_ratings", {
-    id: integer("id").primaryKey({ autoIncrement: true }),
-    postId: integer("post_id")
-        .notNull()
-        .references(() => posts.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-        .notNull()
-        .references(() => user.id, { onDelete: "cascade" }),
-    rating: integer("rating").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-        .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-        .notNull(),
-    content: text("content").notNull()
+export const postRatings = pgTable("post_ratings", {
+	id: integer("id").primaryKey(),
+	postId: integer("post_id")
+		.notNull()
+		.references(() => posts.id, { onDelete: "cascade" }),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	rating: integer("rating").notNull(),
+	createdAt: timestamp("created_at").default(sql`now()`),
+	content: text("content").notNull()
 });

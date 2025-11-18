@@ -9,7 +9,7 @@ import type { GithubProfile } from "better-auth/social-providers";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
-		provider: "sqlite",
+		provider: "pg",
 		schema: {
 			user: schema.user,
 			session: schema.session,
