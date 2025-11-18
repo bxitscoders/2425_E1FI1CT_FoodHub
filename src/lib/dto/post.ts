@@ -3,7 +3,7 @@ type PostDTO = {
     creatorUserId: string;
     title: string;
     content: string;
-    createdAt: number;
+    createdAt: Date;
     rating: PostRatingDTO;
 }
 

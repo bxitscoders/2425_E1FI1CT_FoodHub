@@ -1,12 +1,41 @@
-<script>
+<script lang="ts">
 	import PostSummary from "$lib/components/posts/PostSummary.svelte";
-	import { loadPosts } from "./post.remote";
+	import { onMount } from "svelte";
+	import { loadPostsByOffset } from "./post.remote";
+
+	let posts: PostDTO[] = $state([]);
+	let isLoading: boolean = $state(false);
+
+	let sentinel: HTMLDivElement;
+
+	const loadMore = async () => {
+		if (isLoading) return;
+		isLoading = true;
+
+		const newPosts = await loadPostsByOffset({ offset: posts.length, limit: 10 });
+		posts = [...posts, ...newPosts];
+
+		isLoading = false;
+	};
+
+	onMount(() => {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (!entries[0].isIntersecting) return;
+				loadMore();
+			},
+			{
+				rootMargin: "200px"
+			}
+		);
+
+		observer.observe(sentinel);
+		return () => observer.disconnect();
+	});
 </script>
 
-{#await loadPosts()}
-    <p>Loading...</p>
-{:then posts}
-    {#each posts as post}
-        <PostSummary {post} />
-    {/each}
-{/await}
+{#each posts as post}
+    <PostSummary {post} />
+{/each}
+
+<div bind:this={sentinel}></div>

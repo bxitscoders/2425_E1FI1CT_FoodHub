@@ -7,7 +7,8 @@ import { eq, sql } from "drizzle-orm";
 import sharp from "sharp";
 import * as v from "valibot";
 
-export const loadPosts = query(async () => {
+export const loadPostsByOffset = query(v.object({ offset: v.number(), limit: v.number() }), async (schema) => {
+	const { offset, limit } = schema;
 	const userPosts = await db
 		.select({
 			post: posts,
@@ -18,34 +19,7 @@ export const loadPosts = query(async () => {
 		.leftJoin(postRatings, eq(postRatings.postId, posts.id))
 		.groupBy(posts.id)
 		.orderBy(posts.createdAt)
-		.limit(10);
-
-	return userPosts.map((r) => ({
-		id: r.post.id,
-		creatorUserId: r.post.userId,
-		title: r.post.title,
-		content: r.post.content,
-		createdAt: r.post.createdAt.getTime(),
-		rating: {
-			amount: Number(r.ratingAmount ?? 0),
-			average: r.ratingAverage ? Number(r.ratingAverage) : 0
-		}
-	})) as PostDTO[];
-});
-
-export const loadPostsByOffset = query(v.object({ offset: v.number() }), async (schema) => {
-	const { offset } = schema;
-	const userPosts = await db
-		.select({
-			post: posts,
-			ratingAmount: sql`COUNT(${postRatings.id})`,
-			ratingAverage: sql`AVG(${postRatings.rating})`
-		})
-		.from(posts)
-		.leftJoin(postRatings, eq(postRatings.postId, posts.id))
-		.groupBy(posts.id)
-		.orderBy(posts.createdAt)
-		.limit(15)
+		.limit(limit)
 		.offset(offset);
 
 	return userPosts.map((r) => ({
@@ -53,7 +27,7 @@ export const loadPostsByOffset = query(v.object({ offset: v.number() }), async (
 		creatorUserId: r.post.userId,
 		title: r.post.title,
 		content: r.post.content,
-		createdAt: r.post.createdAt.getTime(),
+		createdAt: r.post.createdAt,
 		rating: {
 			amount: Number(r.ratingAmount ?? 0),
 			average: r.ratingAverage ? Number(r.ratingAverage) : 0
@@ -79,7 +53,7 @@ export const loadPostById = query(v.object({ id: v.number() }), async (schema) =
 		creatorUserId: r.post.userId,
 		title: r.post.title,
 		content: r.post.content,
-		createdAt: r.post.createdAt.getTime(),
+		createdAt: r.post.createdAt,
 		rating: {
 			amount: Number(r.ratingAmount ?? 0),
 			average: r.ratingAverage ? Number(r.ratingAverage) : 0
@@ -106,7 +80,7 @@ export const loadPostsByUserId = query(v.object({ userId: v.string() }), async (
 		creatorUserId: r.post.userId,
 		title: r.post.title,
 		content: r.post.content,
-		createdAt: r.post.createdAt.getTime(),
+		createdAt: r.post.createdAt,
 		rating: {
 			amount: Number(r.ratingAmount ?? 0),
 			average: r.ratingAverage ? Number(r.ratingAverage) : 0
