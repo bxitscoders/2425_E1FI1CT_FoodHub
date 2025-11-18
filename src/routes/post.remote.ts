@@ -126,7 +126,8 @@ export const createPost = form(
 		if (!user) error(401, "Unauthorized");
 
 		const imageBuffer = await sharp(await image.arrayBuffer(), {
-			animated: true
+			animated: true,
+			limitInputPixels: false
 		})
 			.webp({})
 			.rotate()
@@ -150,18 +151,11 @@ export const createPost = form(
 );
 
 export const loadImageByPostId = query(v.object({ postId: v.number() }), async (schema) => {
-    const { postId } = schema;
+	const { postId } = schema;
 
-    const post = await db
-        .select({ id: posts.id })
-        .from(posts)
-        .where(eq(posts.id, postId));
-    if (!post || post.length === 0) return null;
+	const post = await db.select({ id: posts.id }).from(posts).where(eq(posts.id, postId));
+	if (!post || post.length === 0) return null;
 
-    const presignedUrl = await minioClient.presignedGetObject(
-        MINIO_BUCKET_NAME,
-        post[0].id.toString() + ".webp",
-        3600
-    );
-    return presignedUrl;
-})
+	const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET_NAME, post[0].id.toString() + ".webp", 3600);
+	return presignedUrl;
+});
