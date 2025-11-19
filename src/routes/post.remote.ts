@@ -3,7 +3,7 @@ import { db } from "$lib/server/db";
 import { posts, postRatings } from "$lib/server/db/post-schema";
 import { MINIO_BUCKET_NAME, minioClient } from "$lib/server/minio";
 import { error } from "@sveltejs/kit";
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import sharp from "sharp";
 import * as v from "valibot";
 
@@ -18,7 +18,7 @@ export const loadPostsByOffset = query(v.object({ offset: v.number(), limit: v.n
 		.from(posts)
 		.leftJoin(postRatings, eq(postRatings.postId, posts.id))
 		.groupBy(posts.id)
-		.orderBy(posts.createdAt)
+		.orderBy(desc(posts.createdAt))
 		.limit(limit)
 		.offset(offset);
 
