@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp, doublePrecision } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { user } from "./auth-schema";
 
@@ -20,7 +20,7 @@ export const postRatings = pgTable("post_ratings", {
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
-	rating: integer("rating").notNull(),
+	rating: doublePrecision("rating").notNull(),
 	createdAt: timestamp("created_at").default(sql`now()`),
 	content: text("content").notNull()
 });
