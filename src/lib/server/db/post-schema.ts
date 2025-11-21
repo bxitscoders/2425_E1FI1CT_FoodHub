@@ -9,7 +9,7 @@ export const posts = pgTable("posts", {
 		.references(() => user.id),
 	title: text("title").notNull(),
 	content: text("content").notNull(),
-	createdAt: timestamp("created_at").default(sql`now()`)
+	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 });
 
 export const postRatings = pgTable("post_ratings", {

@@ -1,9 +1,9 @@
 import { defineConfig } from 'drizzle-kit';
 
-if (!process.env.POSTGRES_USER) throw new Error("POSTGRES_USER is not set");
-if (!process.env.POSTGRES_PASSWORD) throw new Error("POSTGRES_PASSWORD is not set");
-if (!process.env.POSTGRES_HOST) throw new Error("POSTGRES_HOST is not set");
-if (!process.env.POSTGRES_DB) throw new Error("POSTGRES_DB is not set");
+if (!process.env.PRIVATE_POSTGRES_USER) throw new Error("PRIVATE_POSTGRES_USER is not set");
+if (!process.env.PRIVATE_POSTGRES_PASSWORD) throw new Error("PRIVATE_POSTGRES_PASSWORD is not set");
+if (!process.env.PRIVATE_POSTGRES_HOST) throw new Error("PRIVATE_POSTGRES_HOST is not set");
+if (!process.env.PRIVATE_POSTGRES_DB) throw new Error("PRIVATE_POSTGRES_DB is not set");
 
 export default defineConfig({
 	schema: './src/lib/server/db/schema.ts',
