@@ -92,7 +92,7 @@ export const createPost = form(
 	v.object({
 		title: v.pipe(v.string(), v.maxLength(256), v.nonEmpty()),
 		content: v.pipe(v.string(), v.maxLength(2056), v.nonEmpty()),
-		image: v.pipe(v.file(), v.mimeType(["image/png", "image/jpg", "image/jpeg", "image/gif"]))
+		image: v.pipe(v.file(), v.mimeType(["image/png", "image/jpg", "image/jpeg", "image/gif"]), v.maxSize(20 * 1024 * 1024))
 	}),
 	async ({ title, content, image }) => {
 		const event = getRequestEvent();
