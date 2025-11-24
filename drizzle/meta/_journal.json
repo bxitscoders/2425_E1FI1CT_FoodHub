@@ -15,6 +15,13 @@
       "when": 1763547004388,
       "tag": "0001_optimal_callisto",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763716030101,
+      "tag": "0002_dear_cerise",
+      "breakpoints": true
     }
   ]
 }
