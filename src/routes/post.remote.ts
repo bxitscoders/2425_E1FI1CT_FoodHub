@@ -130,6 +130,10 @@ export const loadImageByPostId = query(v.object({ postId: v.number() }), async (
 	const post = await db.select({ id: posts.id }).from(posts).where(eq(posts.id, postId));
 	if (!post || post.length === 0) return null;
 
-	const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET_NAME, post[0].id.toString() + ".webp", 3600);
-	return presignedUrl;
+	const objectName = `${post[0].id}.webp`;
+    const objectStat = await minioClient.statObject(MINIO_BUCKET_NAME, objectName).catch(() => null);
+    if (!objectStat) return null;
+
+    const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET_NAME, objectName, 3600);
+    return presignedUrl;
 });
