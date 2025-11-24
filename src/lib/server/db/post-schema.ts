@@ -21,7 +21,7 @@ export const postRatings = pgTable("post_ratings", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 	rating: doublePrecision("rating").notNull(),
-	createdAt: timestamp("created_at").default(sql`now()`),
+	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 	content: text("content").notNull()
 }, (table) => [
 	unique().on(table.postId, table.userId)

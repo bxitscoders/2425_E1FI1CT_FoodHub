@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1763451801172,
-      "tag": "0000_robust_wraith",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1763547004388,
-      "tag": "0001_optimal_callisto",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1763716030101,
-      "tag": "0002_dear_cerise",
+      "when": 1763970187734,
+      "tag": "0000_first_photon",
       "breakpoints": true
     }
   ]

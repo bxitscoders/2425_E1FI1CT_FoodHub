@@ -9,7 +9,7 @@
 
 	onMount(async () => (postCreator = await loadUserById({ userId: post.creatorUserId })));
 
-	const formatDate = (dateInput: number): string => {
+	const formatDate = (dateInput: Date): string => {
 		const created = new Date(dateInput);
 		if (isNaN(created.getTime())) return "";
 

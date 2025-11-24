@@ -1,1 +1,0 @@
-ALTER TABLE "post_ratings" ALTER COLUMN "rating" SET DATA TYPE double precision;

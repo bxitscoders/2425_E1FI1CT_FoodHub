@@ -1,1 +1,0 @@
-ALTER TABLE "post_ratings" ADD CONSTRAINT "post_ratings_post_id_user_id_unique" UNIQUE("post_id","user_id");
