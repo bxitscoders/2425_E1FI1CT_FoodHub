@@ -34,3 +34,24 @@ export const createRating = form(
             });
 	}
 );
+
+export const getRatings = query(v.object({ 
+    postId: v.number()
+}), async (schema) => {
+    const { postId } = schema;
+    return (await db
+        .select({
+            userId: postRatings.userId,
+            rating: postRatings.rating,
+            content: postRatings.content,
+            createdAt: postRatings.createdAt
+        })
+        .from(postRatings)
+        .where(eq(postRatings.postId, postId)))
+        .map((rating) => ({
+            userId: rating.userId,
+            value: rating.rating,
+            content: rating.content,
+            createdAt: rating.createdAt
+        }) as RatingDTO);
+});
