@@ -33,7 +33,7 @@
 	};
 </script>
 
-<div class="flex flex-col p-2 gap-y-2">
+<div class="flex flex-col gap-y-2 p-2">
 	<div class="flex flex-row items-start gap-x-2">
 		<!-- Avatar -->
 		<img src={postCreator?.image} height="50px" width="50px" class="shrink-0 rounded-full" alt="User Avatar" />
@@ -58,8 +58,12 @@
 		{/if}
 	{/await}
 
-	<div class="flex gap-x-2 mt-2">
+	<div class="mt-2 flex gap-x-2">
 		<Rating max={5} changable={false} value={post.rating.average} />
-		<span class="ml-2 text-gray-600 italic">({post.rating.amount} Rating{post.rating.amount === 1 ? "" : "s"})</span>
+
+		{#if post.rating.amount > 0}
+			{@const suffix = post.rating.amount === 1 ? "" : "s"}
+			<span class="ml-2 text-gray-600 italic">({post.rating.amount} Rating{suffix})</span>
+		{/if}
 	</div>
 </div>
