@@ -34,8 +34,10 @@
 	});
 </script>
 
-{#each posts as post}
-    <PostSummary {post} />
-{/each}
+<div class="divide-y divide-gray-700">
+	{#each posts as post}
+		<PostSummary {post} />
+	{/each}
+</div>
 
 <div bind:this={sentinel}></div>
