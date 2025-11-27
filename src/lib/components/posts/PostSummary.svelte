@@ -3,8 +3,7 @@
 	import { loadUserById } from "../../../routes/user.remote";
 	import type { User } from "$lib/auth-client";
 	import { loadImageByPostId } from "../../../routes/post.remote";
-	import CircleSlash2 from "@lucide/svelte/icons/circle-slash-2";
-	import Star from "@lucide/svelte/icons/star";
+	import Rating from "./Rating.svelte";
 
 	let { post }: { post: PostDTO } = $props();
 	let postCreator = $state<User | null>(null);
@@ -60,10 +59,7 @@
 	{/await}
 
 	<div class="flex gap-x-2 mt-2">
-		<CircleSlash2 height={7} width={7} class="italic" />
-		<span class="text-gray-600">{post.rating.average}</span>
-		<Star class="fill-yellow-500" />
-
-		<span class="ml-3 text-gray-600 italic">({post.rating.amount} Rating{post.rating.amount === 1 ? "" : "s"})</span>
+		<Rating max={5} changable={false} value={post.rating.average} />
+		<span class="ml-2 text-gray-600 italic">({post.rating.amount} Rating{post.rating.amount === 1 ? "" : "s"})</span>
 	</div>
 </div>
