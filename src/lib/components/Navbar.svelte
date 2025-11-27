@@ -2,6 +2,7 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/state";
 	import { authClient } from "$lib/auth-client";
+	import Upload from "@lucide/svelte/icons/upload";
 	import Logo from "./Logo.svelte";
 
 	const session = authClient.useSession();
@@ -30,6 +31,9 @@
 		{#if $session.data}
 			{@const user = $session.data.user}
 			<div class="flex flex-row gap-4 h-full">
+				<a href="/upload" class="border border-white/35 hover:border-white/50 hover:bg-white/10 rounded-md p-2 flex items-center justify-center transition-colors">
+					<Upload size={18} />
+				</a>
 				<a href="/@{user.handle}" class="h-full">
 					<img class="h-full rounded-full" src={user.image} alt="User" />
 				</a>
