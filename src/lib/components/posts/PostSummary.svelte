@@ -46,7 +46,7 @@
 				<span class="text-gray-700">{formatDate(post.createdAt ?? Date.now())}</span>
 			</div>
 
-			<div>{post.title}</div>
+			<div class="font-bold">{post.title}</div>
 		</div>
 	</div>
 
