@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Star from "@lucide/svelte/icons/star";
+
 	interface Props {
 		max?: number;
 		step?: number;
@@ -59,49 +61,14 @@
 >
 	{#each Array(max) as _, i}
 		<div class="relative h-[25px] w-[25px] text-gray-200">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				class="h-full w-full"
-			>
-				<polygon
-					points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-				/>
-			</svg>
+			<Star size={25} strokeWidth={2} class="h-full w-full" />
 
 			<div
 				class="pointer-events-none absolute top-0 left-0 h-full overflow-hidden text-yellow-400"
 				style="width: {getStarFill(i, displayValue)}%"
 			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="currentColor"
-					stroke="none"
-					class="block h-[25px] w-[25px] flex-shrink-0"
-				>
-					<polygon
-						points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-					/>
-				</svg>
+				<Star size={25} fill="currentColor" strokeWidth={0} class="block h-[25px] w-[25px] flex-shrink-0" />
 			</div>
 		</div>
 	{/each}
 </button>
-
-<style>
-	button {
-		background: none;
-		border: none;
-		padding: 0;
-		font: inherit;
-		color: inherit;
-		cursor: pointer;
-		outline: inherit;
-	}
-</style>
