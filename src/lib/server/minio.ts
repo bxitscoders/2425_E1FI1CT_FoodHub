@@ -7,7 +7,8 @@ const {
 	PRIVATE_MINIO_PORT,
 	PRIVATE_MINIO_ROOT_USER,
 	PRIVATE_MINIO_ROOT_PASSWORD,
-	PRIVATE_MINIO_BUCKET_NAME
+	PRIVATE_MINIO_BUCKET_NAME,
+	PRIVATE_MINIO_SSL
 } = env;
 
 if (!PRIVATE_MINIO_ENDPOINT) throw new Error("MINIO_ENDPOINT is not set");
@@ -19,7 +20,7 @@ if (!PRIVATE_MINIO_BUCKET_NAME) throw new Error("MINIO_BUCKET_NAME is not set");
 export const minioClient = new Minio.Client({
 	endPoint: PRIVATE_MINIO_ENDPOINT,
 	port: Number(PRIVATE_MINIO_PORT),
-	useSSL: true,
+	useSSL: (PRIVATE_MINIO_SSL ?? "true") === "true" ? true : false,
 	accessKey: PRIVATE_MINIO_ROOT_USER,
 	secretKey: PRIVATE_MINIO_ROOT_PASSWORD
 });

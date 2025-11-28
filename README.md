@@ -29,3 +29,10 @@ FoodHub ermöglicht es Nutzern, Bilder von Kantinen-Gerichten hochzuladen, diese
 **Development:**
 - Docker Support
 - Swagger/OpenAPI Documentation
+
+## Development Aufsetzen
+1. `.env.example` kopieren und `.env` benennen.
+2. https://github.com/settings/developers oauth application erstellen und client id und secret eintragen in der `.env`
+2. `npm install` ausführen.
+3. `docker compose up -d` um Datenbanken zu starten, danach `npm run db:migrate`.
+4. Projekt mit `npm run dev` starten und dann sollte es auf localhost:5173 laufen
