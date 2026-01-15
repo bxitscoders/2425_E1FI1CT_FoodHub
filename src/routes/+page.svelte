@@ -36,10 +36,12 @@
 	});
 </script>
 
-<div>
-	{#each posts as post}
-		<PostSummary {post} />
-	{/each}
-</div>
+<main class="min-h-screen">
+	<div class="mx-auto max-w-[600px] border-x border-gray-800">
+		{#each posts as post}
+			<PostSummary {post} />
+		{/each}
+	</div>
+</main>
 
 <div bind:this={sentinel}></div>

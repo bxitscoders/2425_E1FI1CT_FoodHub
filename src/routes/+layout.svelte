@@ -11,8 +11,4 @@
 </svelte:head>
 
 <Navbar />
-<main class="min-h-screen">
-	<div class="mx-auto max-w-[600px] border-x border-gray-800">
-		{@render children?.()}
-	</div>
-</main>
+{@render children?.()}
