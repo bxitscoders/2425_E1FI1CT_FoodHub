@@ -6,7 +6,7 @@
 	let posts: PostDTO[] = $state([]);
 	let isLoading: boolean = $state(false);
 
-	let sentinel: HTMLDivElement;
+	let sentinel: HTMLDivElement | undefined = $state(undefined);
 
 	const loadMore = async () => {
 		if (isLoading) return;
@@ -19,6 +19,8 @@
 	};
 
 	onMount(() => {
+		if (!sentinel) return;
+
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (!entries[0].isIntersecting) return;
@@ -34,7 +36,7 @@
 	});
 </script>
 
-<div class="divide-y divide-gray-700">
+<div>
 	{#each posts as post}
 		<PostSummary {post} />
 	{/each}
