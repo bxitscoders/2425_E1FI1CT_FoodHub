@@ -55,7 +55,11 @@
 			{post.content}
 		</div>
 
-		{#await loadImageByPostId({ postId: post.id }) then imageUrl}
+		{#await loadImageByPostId({ postId: post.id })}
+			<div class="mt-3">
+				<div class="h-64 w-full animate-pulse rounded-2xl border border-gray-800 bg-gray-800"></div>
+			</div>
+		{:then imageUrl}
 			{#if imageUrl}
 				<div class="mt-3">
 					<img src={imageUrl} class="max-w-full rounded-2xl border border-gray-800" alt="Post" />
