@@ -20,9 +20,9 @@
 	}
 </script>
 
-<nav class="bg-black text-white sticky top-0 border-white/35 border-b-1 h-15">
-	<div class="flex flex-row justify-between gap-10 items-center mx-10 *:py-2 h-full">
-		<div class="pr-4 h-full flex items-center">
+<nav class="sticky top-0 z-50 h-[53px] border-b border-gray-800 bg-black bg-black/65 text-white backdrop-blur-md">
+	<div class="mx-auto flex h-full max-w-[600px] flex-row items-center justify-between gap-10 px-4">
+		<div class="flex h-full items-center pr-4">
 			<a href="/">
 				<Logo />
 			</a>
@@ -30,17 +30,26 @@
 
 		{#if $session.data}
 			{@const user = $session.data.user}
-			<div class="flex flex-row gap-4 h-full">
-				<a href="/upload" class="border border-white/35 hover:border-white/50 hover:bg-white/10 rounded-md p-2 flex items-center justify-center transition-colors">
+			<div class="flex flex-row items-center gap-3">
+				<a
+					href="/upload"
+					class="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+				>
 					<Upload size={18} />
 				</a>
-				<a href="/@{user.handle}" class="h-full">
-					<img class="h-full rounded-full" src={user.image} alt="User" />
+				<a href="/@{user.handle}">
+					<img class="h-8 w-8 rounded-full transition-opacity hover:opacity-90" src={user.image} alt="User" />
 				</a>
-				<button class="font-medium" onclick={() => signOut()}>Log out</button>
+				<button
+					class="rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-white/10"
+					onclick={() => signOut()}>Log out</button
+				>
 			</div>
 		{:else}
-			<button class="font-medium" onclick={signIn}>Log in</button>
+			<button
+				class="rounded-full bg-[#1d9bf0] px-4 py-1.5 font-bold text-white transition-colors hover:bg-[#1a8cd8]"
+				onclick={signIn}>Log in</button
+			>
 		{/if}
 	</div>
 </nav>

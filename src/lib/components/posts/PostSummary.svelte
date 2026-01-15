@@ -33,37 +33,44 @@
 	};
 </script>
 
-<div class="flex flex-col gap-y-2 p-2">
-	<div class="flex flex-row items-start gap-x-2">
-		<!-- Avatar -->
-		<img src={postCreator?.image} height="50px" width="50px" class="shrink-0 rounded-full" alt="User Avatar" />
-
-		<div class="flex flex-col">
-			<div>
-				<span class="font-bold">{postCreator?.name}</span>
-				<span class="text-gray-800">@{postCreator?.handle}</span>
-				<span class="text-gray-700">•</span>
-				<span class="text-gray-700">{formatDate(post.createdAt ?? Date.now())}</span>
-			</div>
-
-			<div class="font-bold">{post.title}</div>
-		</div>
+<div class="flex cursor-pointer flex-row gap-x-3 border-b border-gray-800 px-4 py-3 transition-colors hover:bg-white/[0.03]">
+	<!-- Avatar -->
+	<div class="flex-shrink-0">
+		<img src={postCreator?.image} class="h-10 w-10 rounded-full" alt="User Avatar" />
 	</div>
 
-	<span>{post.content}</span>
+	<div class="min-w-0 flex-1">
+		<div class="mb-0.5 flex items-center gap-1">
+			<span class="font-bold text-[#e7e9ea] hover:underline">{postCreator?.name}</span>
+			<span class="text-[#71767b]">@{postCreator?.handle}</span>
+			<span class="text-[#71767b]">·</span>
+			<span class="text-[#71767b] hover:underline">{formatDate(post.createdAt ?? Date.now())}</span>
+		</div>
 
-	{#await loadImageByPostId({ postId: post.id }) then imageUrl}
-		{#if imageUrl}
-			<img src={imageUrl} height="150px" width="150px" class="mt-2 rounded-lg" />
+		{#if post.title}
+			<div class="mb-1 font-semibold text-[#e7e9ea]">{post.title}</div>
 		{/if}
-	{/await}
 
-	<div class="mt-2 flex gap-x-2">
-		<Rating max={5} changable={false} value={post.rating.average} />
+		<div class="text-[15px] leading-5 break-words whitespace-pre-wrap text-[#e7e9ea]">
+			{post.content}
+		</div>
 
-		{#if post.rating.amount > 0}
-			{@const suffix = post.rating.amount === 1 ? "" : "s"}
-			<span class="ml-2 text-gray-600 italic">({post.rating.amount} Rating{suffix})</span>
-		{/if}
+		{#await loadImageByPostId({ postId: post.id }) then imageUrl}
+			{#if imageUrl}
+				<div class="mt-3">
+					<img src={imageUrl} class="max-w-full rounded-2xl border border-gray-800" alt="Post" />
+				</div>
+			{/if}
+		{/await}
+
+		<div class="mt-3 flex items-center gap-2">
+			<div class="origin-left scale-75">
+				<Rating max={5} changable={false} value={post.rating.average} />
+			</div>
+			{#if post.rating.amount > 0}
+				{@const suffix = post.rating.amount === 1 ? "" : "s"}
+				<span class="text-[13px] text-[#71767b]">({post.rating.amount} Rating{suffix})</span>
+			{/if}
+		</div>
 	</div>
 </div>
