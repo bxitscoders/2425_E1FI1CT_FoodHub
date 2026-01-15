@@ -3,12 +3,35 @@
 	import { loadUserById } from "../../../routes/user.remote";
 	import type { User } from "$lib/auth-client";
 	import { loadImageByPostId } from "../../../routes/post.remote";
+	import { getRatings, upsertRating } from "../../../routes/rating.remote";
+	import { authClient } from "$lib/auth-client";
 	import Rating from "./Rating.svelte";
 
 	let { post }: { post: PostDTO } = $props();
-	let postCreator = $state<User | null>(null);
 
-	onMount(async () => (postCreator = await loadUserById({ userId: post.creatorUserId })));
+	let postCreator: User | null = $state(null);
+	let userRating: number = $state(0);
+
+	const session = authClient.useSession();
+
+	onMount(async () => {
+		postCreator = await loadUserById({ userId: post.creatorUserId });
+
+		// user authenticated: load their rating
+		if (!$session.data?.user) return;
+
+		const ratings = await getRatings({ postId: post.id });
+		const existingRating = ratings.find((rating: RatingDTO) => rating.userId === $session.data!.user.id);
+		if (!existingRating) return;
+		userRating = existingRating.value;
+	});
+
+	const handleRatingChange = async (newValue: number) => {
+		if (!$session.data?.user) return;
+
+		await upsertRating({ postId: post.id, ratingValue: newValue });
+		userRating = newValue;
+	};
 
 	const formatDate = (dateInput: Date): string => {
 		const created = new Date(dateInput);
@@ -69,7 +92,7 @@
 
 		<div class="mt-3 flex items-center gap-2">
 			<div class="origin-left scale-75">
-				<Rating max={5} changable={false} value={post.rating.average} />
+				<Rating max={5} changable={!!$session.data?.user} bind:value={userRating} onchange={handleRatingChange} />
 			</div>
 			{#if post.rating.amount > 0}
 				{@const suffix = post.rating.amount === 1 ? "" : "s"}

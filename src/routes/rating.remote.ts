@@ -19,39 +19,79 @@ export const createRating = form(
 		const { postId, rating, content } = schema;
 
 		const [existingRating] = await db
-            .select({ id: postRatings.id })
-            .from(postRatings)
-            .where(and(eq(postRatings.postId, postId), eq(postRatings.userId, user.id)));
-        if (existingRating) return;
-        
-        await db
-            .insert(postRatings)
-            .values({
-                postId,
-                userId: user.id,
-                rating,
-                content
-            });
+			.select({ id: postRatings.id })
+			.from(postRatings)
+			.where(and(eq(postRatings.postId, postId), eq(postRatings.userId, user.id)));
+		if (existingRating) return;
+
+		await db.insert(postRatings).values({
+			postId,
+			userId: user.id,
+			rating,
+			content
+		});
 	}
 );
 
-export const getRatings = query(v.object({ 
-    postId: v.number()
-}), async (schema) => {
-    const { postId } = schema;
-    return (await db
-        .select({
-            userId: postRatings.userId,
-            rating: postRatings.rating,
-            content: postRatings.content,
-            createdAt: postRatings.createdAt
-        })
-        .from(postRatings)
-        .where(eq(postRatings.postId, postId)))
-        .map((rating) => ({
-            userId: rating.userId,
-            value: rating.rating,
-            content: rating.content,
-            createdAt: rating.createdAt
-        }) as RatingDTO);
-});
+export const upsertRating = query(
+	v.object({
+		postId: v.pipe(v.number()),
+		ratingValue: v.pipe(v.number(), v.minValue(0.5), v.maxValue(5))
+	}),
+	async (schema) => {
+		const event = getRequestEvent();
+		const user = event.locals.user;
+		if (!user) error(401, "Unauthorized");
+
+		const { postId, ratingValue } = schema;
+
+		const [existingRating] = await db
+			.select({ id: postRatings.id })
+			.from(postRatings)
+			.where(and(eq(postRatings.postId, postId), eq(postRatings.userId, user.id)));
+
+		if (existingRating) {
+			// Update existing rating
+			await db
+				.update(postRatings)
+				.set({ rating: ratingValue })
+				.where(and(eq(postRatings.id, existingRating.id), eq(postRatings.userId, user.id)));
+		} else {
+			// Create new rating
+			await db.insert(postRatings).values({
+				postId,
+				userId: user.id,
+				rating: ratingValue,
+				content: "asdasd"
+			});
+		}
+	}
+);
+
+export const getRatings = query(
+	v.object({
+		postId: v.number()
+	}),
+	async (schema) => {
+		const { postId } = schema;
+		return (
+			await db
+				.select({
+					userId: postRatings.userId,
+					rating: postRatings.rating,
+					content: postRatings.content,
+					createdAt: postRatings.createdAt
+				})
+				.from(postRatings)
+				.where(eq(postRatings.postId, postId))
+		).map(
+			(rating) =>
+				({
+					userId: rating.userId,
+					value: rating.rating,
+					content: rating.content,
+					createdAt: rating.createdAt
+				}) as RatingDTO
+		);
+	}
+);
