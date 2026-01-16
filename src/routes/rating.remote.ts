@@ -1,6 +1,7 @@
 import { form, getRequestEvent, query } from "$app/server";
 import { db } from "$lib/server/db";
 import { postRatings, postMessages } from "$lib/server/db/post-schema";
+import { user as userTable } from "$lib/server/db/auth-schema";
 import { error } from "@sveltejs/kit";
 import { eq, and } from "drizzle-orm";
 import * as v from "valibot";
@@ -88,6 +89,32 @@ export const getRatings = query(
 					createdAt: rating.createdAt
 				}) as RatingDTO
 		);
+	}
+);
+
+export const loadRatingsByPostId = query(
+	v.object({
+		postId: v.number()
+	}),
+	async (schema) => {
+		const { postId } = schema;
+		return await db
+			.select({
+				id: postRatings.id,
+				userId: postRatings.userId,
+				rating: postRatings.rating,
+				createdAt: postRatings.createdAt,
+				user: {
+					id: userTable.id,
+					name: userTable.name,
+					image: userTable.image,
+					handle: userTable.handle
+				}
+			})
+			.from(postRatings)
+			.leftJoin(userTable, eq(postRatings.userId, userTable.id))
+			.where(eq(postRatings.postId, postId))
+			.orderBy(postRatings.createdAt);
 	}
 );
 
