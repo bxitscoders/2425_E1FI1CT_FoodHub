@@ -79,12 +79,12 @@
 		</div>
 
 		{#await loadImageByPostId({ postId: post.id })}
-			<div class="mt-3 h-64 w-full animate-pulse rounded-2xl border border-gray-800 bg-gray-800"></div>
+			<div class="mt-3 h-64 w-full max-w-lg animate-pulse rounded-2xl border border-gray-800 bg-gray-800"></div>
 		{:then imageUrl}
 			{#if imageUrl}
 				<img
 					src={imageUrl}
-					class="mt-3 max-w-full cursor-pointer rounded-2xl border border-gray-800 transition-all hover:brightness-95"
+					class="mt-3 h-auto max-h-96 max-w-lg cursor-pointer rounded-2xl border border-gray-800 object-cover transition-all hover:brightness-95"
 					alt="Post"
 				/>
 			{/if}

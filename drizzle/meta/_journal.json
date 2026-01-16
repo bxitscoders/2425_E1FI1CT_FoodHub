@@ -15,6 +15,13 @@
       "when": 1768555011504,
       "tag": "0001_grey_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768562948125,
+      "tag": "0002_sweet_avengers",
+      "breakpoints": true
     }
   ]
 }

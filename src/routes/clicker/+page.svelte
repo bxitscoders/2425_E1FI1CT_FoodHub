@@ -1,5 +1,6 @@
 <svelte:head>
 	<title>Foodhub - Burger Empire 💰</title>
+	<link rel="stylesheet" href="/clicker-features.css" />
 </svelte:head>
 
 <div class="news-ticker" id="newsTicker">
@@ -164,6 +165,182 @@
 				<span class="btn-icon">🔄</span>
 				<span class="btn-text">Spiel zurücksetzen</span>
 			</button>
+		</div>
+
+		<!-- Neue Features Panels -->
+		
+		<!-- Daily Reward Panel -->
+		<div class="feature-panel">
+			<h3 class="feature-title">🎁 Tägliche Belohnung</h3>
+			{#if !dailyRewardClaimed}
+				<button class="feature-btn primary" onclick={claimDailyReward}>
+					<span class="btn-icon">🎁</span>
+					<span>Belohnung abholen!</span>
+				</button>
+			{:else}
+				<div class="claimed-badge">✅ Bereits abgeholt</div>
+			{/if}
+		</div>
+
+		<!-- Daily Challenge -->
+		{#if dailyChallenge}
+			<div class="feature-panel">
+				<h3 class="feature-title">🎯 Tägliche Challenge</h3>
+				<div class="challenge-info">
+					<div class="challenge-name">{dailyChallenge.name}</div>
+					<div class="challenge-desc">{dailyChallenge.desc}</div>
+					<div class="progress-bar">
+						<div class="progress-fill" style="width:{Math.min(100, (challengeProgress / dailyChallenge.target) * 100)}%"></div>
+					</div>
+					<div class="challenge-progress">
+						{formatNumber(challengeProgress)} / {formatNumber(dailyChallenge.target)}
+					</div>
+					<div class="challenge-reward">
+						🏆 Belohnung: {formatNumber(dailyChallenge.reward)}€
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Market Status -->
+		<div class="feature-panel">
+			<h3 class="feature-title">📈 Markt Status</h3>
+			<div class="market-info">
+				<div class="market-trend" class:up={marketTrend === 'up'} class:down={marketTrend === 'down'}>
+					{marketTrend === 'up' ? '📈 BOOM!' : marketTrend === 'down' ? '📉 CRASH!' : '➡️ STABIL'}
+				</div>
+				<div class="market-multiplier">
+					Multiplikator: {marketMultiplier.toFixed(2)}x
+				</div>
+			</div>
+		</div>
+
+		<!-- Active Boosts -->
+		{#if activeBoosts.length > 0}
+			<div class="feature-panel">
+				<h3 class="feature-title">⚡ Aktive Boosts</h3>
+				<div class="boosts-list">
+					{#each activeBoosts as boost}
+						{@const timeLeft = Math.ceil((boost.endTime - Date.now()) / 1000)}
+						<div class="boost-item">
+							<span class="boost-name">{boost.name}</span>
+							<span class="boost-time">{timeLeft}s</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
+
+		<!-- Current Event -->
+		{#if currentEvent}
+			<div class="feature-panel event-panel">
+				<h3 class="feature-title">🎉 Event: {currentEvent.name}</h3>
+				<div class="event-info">
+					<div class="event-desc">
+						{currentEvent.effect === 'income' ? `${currentEvent.multiplier}x Einkommen!` :
+						 currentEvent.effect === 'click' ? `${currentEvent.multiplier}x Klick-Wert!` :
+						 currentEvent.effect === 'both' ? `${currentEvent.multiplier}x Alles!` :
+						 currentEvent.effect === 'penalty' ? `${currentEvent.multiplier}x Strafe` : ''}
+					</div>
+					<div class="event-time">⏱️ {eventTimeLeft}s verbleibend</div>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Boosts Shop -->
+		<div class="feature-panel">
+			<h3 class="feature-title">⚡ Boost Shop</h3>
+			<div class="boosts-shop">
+				{#each boostTypes as boost}
+					{@const canAfford = money >= boost.cost}
+					<button 
+						class="boost-buy-btn"
+						class:disabled={!canAfford}
+						onclick={() => canAfford && activateBoost(boost.id)}
+					>
+						<span class="boost-icon">{boost.name}</span>
+						<span class="boost-stats">{boost.multiplier}x • {boost.duration}s</span>
+						<span class="boost-cost">{formatNumber(boost.cost)}€</span>
+					</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Mini Games -->
+		<div class="feature-panel">
+			<h3 class="feature-title">🎮 Mini-Games</h3>
+			<div class="minigames-container">
+				<button 
+					class="minigame-btn"
+					onclick={startSlotMachine}
+					disabled={slotMachineSpinning || money < 1000}
+				>
+					<span class="game-icon">🎰</span>
+					<span class="game-name">Slot Machine</span>
+					<span class="game-cost">1.000€</span>
+				</button>
+				<button 
+					class="minigame-btn"
+					onclick={startBurgerFlipper}
+					disabled={burgerFlipperActive}
+				>
+					<span class="game-icon">🍔</span>
+					<span class="game-name">Burger Flipper</span>
+					<span class="game-cost">Kostenlos!</span>
+				</button>
+			</div>
+			{#if burgerFlipperActive}
+				<div class="flipper-game">
+					<div class="flipper-score">Score: {flipperScore}</div>
+					<button class="flipper-btn" onclick={flipBurger}>
+						🍔 FLIP!
+					</button>
+				</div>
+			{/if}
+		</div>
+
+		<!-- Employees -->
+		<div class="feature-panel">
+			<h3 class="feature-title">👥 Mitarbeiter</h3>
+			<div class="employees-list">
+				{#each employeeTypes as emp}
+					{@const canAfford = money >= emp.cost && emp.hired < emp.max}
+					<button 
+						class="employee-btn"
+						class:disabled={!canAfford}
+						onclick={() => canAfford && hireEmployee(emp.id)}
+					>
+						<span class="emp-icon">{emp.name}</span>
+						<span class="emp-count">{emp.hired}/{emp.max}</span>
+						<span class="emp-cost">{formatNumber(emp.cost)}€</span>
+					</button>
+				{/each}
+			</div>
+		</div>
+
+		<!-- Research -->
+		<div class="feature-panel">
+			<h3 class="feature-title">🔬 Forschung</h3>
+			<div class="research-list">
+				{#each researchOptions as r}
+					{@const canAfford = money >= r.cost && !r.researched}
+					{@const reqsMet = r.requires.every(reqId => {
+						const req = researchOptions.find(o => o.id === reqId);
+						return req && req.researched;
+					})}
+					<button 
+						class="research-btn"
+						class:disabled={!canAfford || !reqsMet}
+						class:researched={r.researched}
+						onclick={() => canAfford && reqsMet && doResearch(r.id)}
+					>
+						<span class="research-name">{r.name}</span>
+						<span class="research-status">
+							{r.researched ? '✅ Erforscht' : `${formatNumber(r.cost)}€`}
+						</span>
+					</button>
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>
@@ -1139,6 +1316,23 @@
 	let prestigeLevel = 0,
 		prestigeBonus = 1;
 
+	// Neue Features
+	let activeBoosts = $state([]);
+	let currentEvent = $state(null);
+	let eventTimeLeft = $state(0);
+	let dailyRewardClaimed = $state(false);
+	let lastLoginDate = $state(null);
+	let marketMultiplier = $state(1.0);
+	let marketTrend = $state('stable');
+	let employees = $state([]);
+	let research = $state([]);
+	let miniGameActive = $state(false);
+	let slotMachineSpinning = $state(false);
+	let burgerFlipperActive = $state(false);
+	let flipperScore = $state(0);
+	let dailyChallenge = $state(null);
+	let challengeProgress = $state(0);
+
 	let intervals = [];
 
 	const sounds = {
@@ -1415,6 +1609,49 @@
 		'🎯 Spieler knackt Milliardenmarke!'
 	];
 
+	// Boost System
+	const boostTypes = [
+		{ id: 'frenzy', name: '🔥 Frenzy', multiplier: 7, duration: 30, cost: 5000 },
+		{ id: 'mega', name: '⚡ Mega Boost', multiplier: 15, duration: 15, cost: 15000 },
+		{ id: 'golden', name: '✨ Golden Hour', multiplier: 3, duration: 60, cost: 8000 },
+		{ id: 'auto', name: '🤖 Auto-Clicker', multiplier: 1, duration: 45, cost: 12000 }
+	];
+
+	// Random Events
+	const randomEvents = [
+		{ id: 'rush', name: '🏃 Rush Hour', effect: 'income', multiplier: 2, duration: 45 },
+		{ id: 'sale', name: '💰 Flash Sale', effect: 'click', multiplier: 3, duration: 30 },
+		{ id: 'festival', name: '🎉 Food Festival', effect: 'both', multiplier: 1.5, duration: 60 },
+		{ id: 'critic', name: '👨‍🍳 Food Critic', effect: 'challenge', requirement: 'clicks', target: 100 },
+		{ id: 'health', name: '🏥 Health Inspector', effect: 'penalty', multiplier: 0.5, duration: 20 }
+	];
+
+	// Employee/Team System
+	const employeeTypes = [
+		{ id: 'cook', name: '👨‍🍳 Koch', bonus: 'income', value: 0.1, cost: 50000, hired: 0, max: 10 },
+		{ id: 'cashier', name: '💵 Kassierer', bonus: 'click', value: 5, cost: 75000, hired: 0, max: 5 },
+		{ id: 'manager', name: '👔 Manager', bonus: 'efficiency', value: 0.05, cost: 150000, hired: 0, max: 3 },
+		{ id: 'marketer', name: '📱 Marketer', bonus: 'events', value: 0.2, cost: 100000, hired: 0, max: 5 }
+	];
+
+	// Research/Tech Tree
+	const researchOptions = [
+		{ id: 'efficiency1', name: '⚡ Effizienz I', bonus: 'income', value: 0.1, cost: 100000, researched: false, requires: [] },
+		{ id: 'efficiency2', name: '⚡ Effizienz II', bonus: 'income', value: 0.2, cost: 500000, researched: false, requires: ['efficiency1'] },
+		{ id: 'marketing1', name: '📊 Marketing I', bonus: 'click', value: 10, cost: 200000, researched: false, requires: [] },
+		{ id: 'marketing2', name: '📊 Marketing II', bonus: 'click', value: 25, cost: 750000, researched: false, requires: ['marketing1'] },
+		{ id: 'automation', name: '🤖 Automation', bonus: 'passive', value: 0.15, cost: 1000000, researched: false, requires: ['efficiency1'] },
+		{ id: 'premium', name: '⭐ Premium Zutaten', bonus: 'quality', value: 0.25, cost: 2000000, researched: false, requires: ['marketing1'] }
+	];
+
+	// Daily Challenges
+	const challengeTypes = [
+		{ id: 'clicks', name: 'Klick-Meister', desc: 'Erreiche {target} Klicks', reward: 50000 },
+		{ id: 'income', name: 'Geld-Magnet', desc: 'Verdiene {target}€', reward: 75000 },
+		{ id: 'upgrades', name: 'Shopping-Spree', desc: 'Kaufe {target} Upgrades', reward: 100000 },
+		{ id: 'noclick', name: 'Passiv-Pro', desc: 'Verdiene {target}€ ohne zu klicken', reward: 150000 }
+	];
+
 	function updateNewsTicker() {
 		if (!browser) return;
 		const ticker = document.getElementById('newsTicker');
@@ -1481,8 +1718,40 @@
 			clickValue += u.clickBonus * u.owned;
 			incomePerSecond += u.baseIncome * u.owned;
 		});
+		
+		// Apply prestige bonus
 		clickValue = Math.floor(clickValue * prestigeBonus);
 		incomePerSecond = Math.floor(incomePerSecond * prestigeBonus);
+		
+		// Apply employee bonuses
+		const empBonus = getEmployeeBonus();
+		incomePerSecond = Math.floor(incomePerSecond * empBonus.incomeBonus);
+		clickValue += empBonus.clickBonus;
+		
+		// Apply research bonuses
+		const resBonus = getResearchBonus();
+		incomePerSecond = Math.floor(incomePerSecond * resBonus.incomeBonus);
+		clickValue += resBonus.clickBonus;
+		
+		// Apply market multiplier
+		incomePerSecond = Math.floor(incomePerSecond * marketMultiplier);
+		clickValue = Math.floor(clickValue * marketMultiplier);
+		
+		// Apply active boosts
+		const boostMult = updateBoosts();
+		incomePerSecond = Math.floor(incomePerSecond * boostMult);
+		clickValue = Math.floor(clickValue * boostMult);
+		
+		// Apply event multiplier
+		const eventMult = updateEvent();
+		if (currentEvent) {
+			if (currentEvent.effect === 'income' || currentEvent.effect === 'both') {
+				incomePerSecond = Math.floor(incomePerSecond * eventMult);
+			}
+			if (currentEvent.effect === 'click' || currentEvent.effect === 'both') {
+				clickValue = Math.floor(clickValue * eventMult);
+			}
+		}
 	}
 
 	function buyUpgrade(id) {
@@ -1552,6 +1821,280 @@
 		// UI updates handled by Svelte reactivity
 	}
 
+	// ===== NEUE FEATURES =====
+	
+	// Boost System
+	function activateBoost(boostId) {
+		const boost = boostTypes.find(b => b.id === boostId);
+		if (!boost || money < boost.cost) return;
+		
+		money -= boost.cost;
+		activeBoosts.push({
+			...boost,
+			endTime: Date.now() + boost.duration * 1000
+		});
+		
+		showAchievement(`${boost.name} aktiviert für ${boost.duration}s!`);
+		playSound('buy');
+	}
+
+	function updateBoosts() {
+		const now = Date.now();
+		activeBoosts = activeBoosts.filter(b => b.endTime > now);
+		
+		// Berechne aktuellen Boost-Multiplikator
+		let totalMultiplier = 1;
+		activeBoosts.forEach(b => {
+			totalMultiplier *= b.multiplier;
+		});
+		return totalMultiplier;
+	}
+
+	// Random Events
+	function triggerRandomEvent() {
+		if (currentEvent || Math.random() > 0.1) return; // 10% Chance
+		
+		const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+		currentEvent = { ...event };
+		eventTimeLeft = event.duration || 30;
+		
+		showAchievement(`🎉 Event: ${event.name}!`);
+	}
+
+	function updateEvent() {
+		if (!currentEvent) return 1;
+		
+		eventTimeLeft--;
+		if (eventTimeLeft <= 0) {
+			currentEvent = null;
+			return 1;
+		}
+		
+		if (currentEvent.effect === 'income') return currentEvent.multiplier;
+		if (currentEvent.effect === 'click') return currentEvent.multiplier;
+		if (currentEvent.effect === 'both') return currentEvent.multiplier;
+		if (currentEvent.effect === 'penalty') return currentEvent.multiplier;
+		
+		return 1;
+	}
+
+	// Employee System
+	function hireEmployee(employeeId) {
+		const emp = employeeTypes.find(e => e.id === employeeId);
+		if (!emp || money < emp.cost || emp.hired >= emp.max) return;
+		
+		money -= emp.cost;
+		emp.hired++;
+		employees.push({ ...emp, id: `${emp.id}_${emp.hired}` });
+		
+		showAchievement(`${emp.name} eingestellt!`);
+		playSound('buy');
+		calculateIncome();
+	}
+
+	function getEmployeeBonus() {
+		let incomeBonus = 1;
+		let clickBonus = 0;
+		
+		employeeTypes.forEach(emp => {
+			if (emp.bonus === 'income') incomeBonus += emp.hired * emp.value;
+			if (emp.bonus === 'click') clickBonus += emp.hired * emp.value;
+		});
+		
+		return { incomeBonus, clickBonus };
+	}
+
+	// Research System
+	function doResearch(researchId) {
+		const r = researchOptions.find(opt => opt.id === researchId);
+		if (!r || r.researched || money < r.cost) return;
+		
+		// Check requirements
+		const reqsMet = r.requires.every(reqId => {
+			const req = researchOptions.find(o => o.id === reqId);
+			return req && req.researched;
+		});
+		
+		if (!reqsMet) {
+			showAchievement('⚠️ Voraussetzungen nicht erfüllt!');
+			return;
+		}
+		
+		money -= r.cost;
+		r.researched = true;
+		research.push(researchId);
+		
+		showAchievement(`🔬 ${r.name} erforscht!`);
+		playSound('buy');
+		calculateIncome();
+	}
+
+	function getResearchBonus() {
+		let incomeBonus = 1;
+		let clickBonus = 0;
+		
+		researchOptions.forEach(r => {
+			if (r.researched) {
+				if (r.bonus === 'income') incomeBonus += r.value;
+				if (r.bonus === 'click') clickBonus += r.value;
+				if (r.bonus === 'passive') incomeBonus += r.value;
+			}
+		});
+		
+		return { incomeBonus, clickBonus };
+	}
+
+	// Market System
+	function updateMarket() {
+		const rand = Math.random();
+		
+		if (rand < 0.1) { // 10% Boom
+			marketMultiplier = 1.5 + Math.random() * 0.5;
+			marketTrend = 'up';
+		} else if (rand > 0.9) { // 10% Crash
+			marketMultiplier = 0.5 + Math.random() * 0.3;
+			marketTrend = 'down';
+		} else { // 80% Stable
+			marketMultiplier = 0.9 + Math.random() * 0.2;
+			marketTrend = 'stable';
+		}
+	}
+
+	// Daily Rewards
+	function checkDailyReward() {
+		if (!browser) return;
+		const today = new Date().toDateString();
+		
+		if (lastLoginDate !== today) {
+			lastLoginDate = today;
+			dailyRewardClaimed = false;
+		}
+	}
+
+	function claimDailyReward() {
+		if (dailyRewardClaimed) return;
+		
+		const reward = Math.floor(incomePerSecond * 600); // 10 Minuten Income
+		money += reward;
+		totalEarned += reward;
+		dailyRewardClaimed = true;
+		
+		showAchievement(`🎁 Tägliche Belohnung: ${formatNumber(reward)}€!`);
+		playSound('buy');
+	}
+
+	// Daily Challenge
+	function generateDailyChallenge() {
+		if (!browser) return;
+		const today = new Date().toDateString();
+		const stored = localStorage.getItem('dailyChallenge');
+		
+		if (stored) {
+			const saved = JSON.parse(stored);
+			if (saved.date === today) {
+				dailyChallenge = saved.challenge;
+				challengeProgress = saved.progress || 0;
+				return;
+			}
+		}
+		
+		const type = challengeTypes[Math.floor(Math.random() * challengeTypes.length)];
+		const target = type.id === 'clicks' ? 500 + Math.floor(Math.random() * 500) :
+					  type.id === 'income' ? 50000 + Math.floor(Math.random() * 100000) :
+					  type.id === 'upgrades' ? 5 + Math.floor(Math.random() * 10) :
+					  type.id === 'noclick' ? 10000 + Math.floor(Math.random() * 20000) : 100;
+		
+		dailyChallenge = {
+			...type,
+			target,
+			date: today,
+			desc: type.desc.replace('{target}', formatNumber(target))
+		};
+		challengeProgress = 0;
+		
+		localStorage.setItem('dailyChallenge', JSON.stringify({
+			date: today,
+			challenge: dailyChallenge,
+			progress: 0
+		}));
+	}
+
+	function updateChallengeProgress() {
+		if (!dailyChallenge) return;
+		
+		if (dailyChallenge.id === 'clicks') {
+			challengeProgress = totalClicks;
+		} else if (dailyChallenge.id === 'income') {
+			challengeProgress = totalEarned;
+		} else if (dailyChallenge.id === 'upgrades') {
+			challengeProgress = totalUpgradesBought;
+		}
+		
+		if (challengeProgress >= dailyChallenge.target) {
+			money += dailyChallenge.reward;
+			showAchievement(`✅ Challenge abgeschlossen! +${formatNumber(dailyChallenge.reward)}€`);
+			dailyChallenge = null;
+		}
+	}
+
+	// Mini-Games
+	function startSlotMachine() {
+		if (money < 1000) {
+			showAchievement('⚠️ Benötigt 1.000€!');
+			return;
+		}
+		
+		money -= 1000;
+		slotMachineSpinning = true;
+		
+		setTimeout(() => {
+			const symbols = ['🍔', '💰', '⭐', '🍟', '🥤'];
+			const result = [
+				symbols[Math.floor(Math.random() * symbols.length)],
+				symbols[Math.floor(Math.random() * symbols.length)],
+				symbols[Math.floor(Math.random() * symbols.length)]
+			];
+			
+			if (result[0] === result[1] && result[1] === result[2]) {
+				const win = result[0] === '💰' ? 50000 : result[0] === '⭐' ? 25000 : 10000;
+				money += win;
+				showAchievement(`🎰 JACKPOT! ${result.join(' ')} +${formatNumber(win)}€!`);
+			} else if (result[0] === result[1] || result[1] === result[2]) {
+				money += 2000;
+				showAchievement(`🎰 ${result.join(' ')} +2.000€`);
+			} else {
+				showAchievement(`🎰 ${result.join(' ')} Leider verloren!`);
+			}
+			
+			slotMachineSpinning = false;
+		}, 2000);
+	}
+
+	function startBurgerFlipper() {
+		burgerFlipperActive = true;
+		flipperScore = 0;
+		
+		let count = 0;
+		const interval = setInterval(() => {
+			count++;
+			if (count >= 10) {
+				clearInterval(interval);
+				burgerFlipperActive = false;
+				const reward = flipperScore * 1000;
+				money += reward;
+				showAchievement(`🍔 Flipper beendet! ${flipperScore} Burger = ${formatNumber(reward)}€`);
+			}
+		}, 1000);
+	}
+
+	function flipBurger() {
+		if (!burgerFlipperActive) return;
+		flipperScore++;
+		playSound('click');
+	}
+
+	// ===== END NEUE FEATURES =====
+
 	function saveGame() {
 		if (!browser) return;
 		const s = {
@@ -1564,7 +2107,14 @@
 			startTime,
 			upgrades: upgrades.map((u) => ({ id: u.id, owned: u.owned })),
 			achievements: achievements.map((a) => a.shown),
-			lastSave: Date.now()
+			lastSave: Date.now(),
+			// Neue Features
+			lastLoginDate,
+			dailyRewardClaimed,
+			marketMultiplier,
+			marketTrend,
+			employees: employeeTypes.map(e => ({ id: e.id, hired: e.hired })),
+			research: researchOptions.map(r => ({ id: r.id, researched: r.researched }))
 		};
 		localStorage.setItem('burgerClickerSave', JSON.stringify(s));
 	}
@@ -1582,15 +2132,43 @@
 			prestigeLevel = d.prestigeLevel || 0;
 			prestigeBonus = 1 + prestigeLevel * 0.05;
 			startTime = d.startTime || Date.now();
+			
+			// Load upgrades
 			if (d.upgrades)
 				d.upgrades.forEach((su) => {
 					const u = upgrades.find((x) => x.id === su.id);
 					if (u) u.owned = su.owned;
 				});
+			
+			// Load achievements
 			if (Array.isArray(d.achievements))
 				d.achievements.forEach((v, i) => {
 					if (achievements[i]) achievements[i].shown = v;
 				});
+			
+			// Load new features
+			if (d.lastLoginDate) lastLoginDate = d.lastLoginDate;
+			if (d.dailyRewardClaimed !== undefined) dailyRewardClaimed = d.dailyRewardClaimed;
+			if (d.marketMultiplier) marketMultiplier = d.marketMultiplier;
+			if (d.marketTrend) marketTrend = d.marketTrend;
+			
+			// Load employees
+			if (d.employees) {
+				d.employees.forEach(e => {
+					const emp = employeeTypes.find(t => t.id === e.id);
+					if (emp) emp.hired = e.hired;
+				});
+			}
+			
+			// Load research
+			if (d.research) {
+				d.research.forEach(r => {
+					const res = researchOptions.find(o => o.id === r.id);
+					if (res) res.researched = r.researched;
+				});
+			}
+			
+			// Offline earnings
 			if (d.lastSave) {
 				offlineTime = Date.now() - d.lastSave;
 				const offlineEarnings = Math.min(
@@ -1603,6 +2181,7 @@
 					showAchievement(`💤 Offline-Einkommen: ${formatNumber(offlineEarnings)} €`);
 				}
 			}
+			
 			calculateIncome();
 			updateDisplay();
 			updatePrestigeDisplay();
@@ -1843,6 +2422,24 @@
 
 		// Wrinkler spawn
 		intervals.push(setInterval(spawnWrinkler, 60000));
+
+		// Neue Feature Intervals
+		checkDailyReward();
+		generateDailyChallenge();
+		
+		// Update boosts every second
+		intervals.push(setInterval(() => {
+			updateBoosts();
+			updateEvent();
+			updateChallengeProgress();
+		}, 1000));
+
+		// Random events (every 3 minutes check)
+		intervals.push(setInterval(triggerRandomEvent, 180000));
+
+		// Market updates (every 2 minutes)
+		intervals.push(setInterval(updateMarket, 120000));
+		updateMarket(); // Initial market state
 	});
 
 	onDestroy(() => {

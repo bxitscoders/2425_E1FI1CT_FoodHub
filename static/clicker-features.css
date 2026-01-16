@@ -1,0 +1,139 @@
+/* Neue Feature Styles für Clicker */
+.feature-panel {
+	background: linear-gradient(135deg, #222, #181818);
+	border-radius: 15px;
+	padding: 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 4px 15px rgba(255, 144, 0, 0.15);
+	border: 2px solid #333;
+}
+
+.feature-title {
+	font-size: 18px;
+	font-weight: bold;
+	color: #ff9000;
+	margin: 0 0 15px 0;
+	text-align: center;
+}
+
+.feature-btn.primary {
+	width: 100%;
+	padding: 12px 20px;
+	background: linear-gradient(135deg, #ff9000, #e07e00);
+	color: #000;
+	border: none;
+	border-radius: 10px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.feature-btn.primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 5px 20px rgba(255, 144, 0, 0.4);
+}
+
+.claimed-badge {
+	text-align: center;
+	padding: 12px;
+	background: #2a2a2a;
+	border-radius: 10px;
+	color: #4caf50;
+	font-weight: bold;
+}
+
+.progress-bar {
+	height: 20px;
+	background: #333;
+	border-radius: 10px;
+	overflow: hidden;
+	margin: 12px 0 8px 0;
+}
+
+.progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #ff9000, #ffaa00);
+	transition: width 0.3s ease;
+}
+
+.market-trend {
+	font-size: 20px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+.market-trend.up { color: #4caf50; }
+.market-trend.down { color: #f44336; }
+
+.event-panel {
+	background: linear-gradient(135deg, #ff9000, #e07e00) !important;
+	border-color: #ff9000 !important;
+	animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%, 100% { box-shadow: 0 4px 15px rgba(255, 144, 0, 0.3); }
+	50% { box-shadow: 0 4px 25px rgba(255, 144, 0, 0.6); }
+}
+
+.boost-buy-btn, .minigame-btn, .employee-btn, .research-btn {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 16px;
+	background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+	border: 2px solid #444;
+	border-radius: 10px;
+	color: #fff;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	margin-bottom: 8px;
+	width: 100%;
+}
+
+.boost-buy-btn:hover:not(.disabled),
+.minigame-btn:hover:not(:disabled),
+.employee-btn:hover:not(.disabled),
+.research-btn:hover:not(.disabled) {
+	border-color: #ff9000;
+	transform: translateX(5px);
+}
+
+.disabled {
+	opacity: 0.5;
+	cursor: not-allowed !important;
+}
+
+.research-btn.researched {
+	background: linear-gradient(135deg, #2a4a2a, #1a3a1a);
+	border-color: #4caf50;
+}
+
+.flipper-game {
+	margin-top: 15px;
+	padding: 20px;
+	background: #1a1a1a;
+	border-radius: 10px;
+	text-align: center;
+}
+
+.flipper-btn {
+	padding: 20px 40px;
+	background: linear-gradient(135deg, #ff9000, #e07e00);
+	border: none;
+	border-radius: 15px;
+	color: #000;
+	font-size: 20px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: transform 0.2s;
+}
+
+.flipper-btn:hover {
+	transform: scale(1.1);
+}
+
+.flipper-btn:active {
+	transform: scale(0.95);
+}

@@ -27,6 +27,7 @@ export const loadPostsByOffset = query(v.object({ offset: v.number(), limit: v.n
 		creatorUserId: r.post.userId,
 		title: r.post.title,
 		content: r.post.content,
+		category: r.post.category,
 		createdAt: r.post.createdAt,
 		rating: {
 			amount: Number(r.ratingAmount ?? 0),
@@ -53,6 +54,7 @@ export const loadPostById = query(v.object({ id: v.number() }), async (schema) =
 		creatorUserId: r.post.userId,
 		title: r.post.title,
 		content: r.post.content,
+		category: r.post.category,
 		createdAt: r.post.createdAt,
 		rating: {
 			amount: Number(r.ratingAmount ?? 0),
@@ -80,6 +82,7 @@ export const loadPostsByUserId = query(v.object({ userId: v.string() }), async (
 		creatorUserId: r.post.userId,
 		title: r.post.title,
 		content: r.post.content,
+		category: r.post.category,
 		createdAt: r.post.createdAt,
 		rating: {
 			amount: Number(r.ratingAmount ?? 0),
@@ -92,9 +95,10 @@ export const createPost = form(
 	v.object({
 		title: v.pipe(v.string(), v.maxLength(256), v.nonEmpty()),
 		content: v.pipe(v.string(), v.maxLength(2056), v.nonEmpty()),
+		category: v.optional(v.string(), "Andere"),
 		image: v.pipe(v.file(), v.mimeType(["image/png", "image/jpg", "image/jpeg", "image/gif"]), v.maxSize(20 * 1024 * 1024))
 	}),
-	async ({ title, content, image }) => {
+	async ({ title, content, category, image }) => {
 		const event = getRequestEvent();
 		const user = event.locals.user;
 		if (!user) error(401, "Unauthorized");
@@ -112,7 +116,8 @@ export const createPost = form(
 			.values({
 				userId: user.id,
 				title,
-				content
+				content,
+				category
 			})
 			.returning();
 

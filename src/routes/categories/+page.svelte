@@ -1,13 +1,10 @@
 <script lang="ts">
 	const categories = [
-		{ name: 'Pizza', icon: '🍕', count: 156, color: '#ff6b35' },
-		{ name: 'Burger', icon: '🍔', count: 203, color: '#ff9000' },
-		{ name: 'Asiatisch', icon: '🍜', count: 189, color: '#ffd700' },
-		{ name: 'Vegan', icon: '🥗', count: 98, color: '#4caf50' },
-		{ name: 'Desserts', icon: '🍰', count: 142, color: '#ff4081' },
-		{ name: 'Italienisch', icon: '🍝', count: 134, color: '#ff6b6b' },
-		{ name: 'Mexikanisch', icon: '🌮', count: 87, color: '#ffaa00' },
-		{ name: 'Getränke', icon: '🥤', count: 76, color: '#00bcd4' },
+		{ name: 'Pizza', icon: '🍕', color: '#ff6b35' },
+		{ name: 'Burger', icon: '🍔', color: '#ff9000' },
+		{ name: 'Asiatisch', icon: '🍜', color: '#ffd700' },
+		{ name: 'Vegan', icon: '🥗', color: '#4caf50' },
+		{ name: 'Desserts', icon: '🍰', color: '#ff4081' },
 	];
 </script>
 
@@ -26,7 +23,6 @@
 					{category.icon}
 				</div>
 				<h3 class="category-name">{category.name}</h3>
-				<div class="category-count">{category.count} Gerichte</div>
 				<div class="category-arrow">→</div>
 			</a>
 		{/each}
@@ -133,14 +129,8 @@
 	.category-name {
 		font-size: 24px;
 		font-weight: bold;
-		margin: 0 0 10px 0;
+		margin: 0 0 30px 0;
 		color: #fff;
-	}
-
-	.category-count {
-		font-size: 15px;
-		color: #999;
-		margin-bottom: 20px;
 	}
 
 	.category-arrow {

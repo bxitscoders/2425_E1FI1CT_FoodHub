@@ -1,192 +1,106 @@
 <script lang="ts">
-	import { page } from "$app/stores";
-	import { onMount } from "svelte";
-	import { loadPostById, loadImageByPostId } from "../../post.remote";
-	import { loadRatingsByPostId } from "../../rating.remote";
-	import { loadUserById } from "../../user.remote";
+	import type { PageData } from "./$types";
 
-	const postId = Number($page.params.id);
+	let { data }: { data: PageData } = $props();
 
-	let post: PostDTO | null = $state(null);
-	let imageUrl: string | null = $state(null);
-	let ratings: any[] = $state([]);
-	let creator: any = $state(null);
-	let isLoading = $state(true);
-
-	onMount(async () => {
-		try {
-			const posts = await loadPostById({ id: postId });
-			if (posts && posts.length > 0) {
-				post = posts[0];
-				
-				// Lade Bild
-				imageUrl = await loadImageByPostId({ postId });
-				
-				// Lade Creator
-				if (post?.creatorUserId) {
-					creator = await loadUserById({ userId: post.creatorUserId });
-				}
-				
-				// Lade Ratings
-				ratings = await loadRatingsByPostId({ postId });
-			}
-		} catch (error) {
-			console.error("Fehler beim Laden des Posts:", error);
-		} finally {
-			isLoading = false;
-		}
-	});
+	const { post, imageUrl, creator, ratings } = data;
 </script>
 
 <svelte:head>
-	<title>{post ? post.title : 'Laden...'} - Foodhub</title>
+	<title>{post.title} - Foodhub</title>
 </svelte:head>
 
-{#if isLoading}
-	<div class="loading-container">
-		<div class="loading-spinner">🍔</div>
-		<p>Lädt Gericht...</p>
+<main class="post-detail">
+	<div class="hero-section">
+		{#if imageUrl}
+			<img src={imageUrl} alt={post.title} class="hero-image" />
+			<div class="hero-overlay"></div>
+		{:else}
+			<div class="hero-placeholder">
+				<span class="hero-icon">🍽️</span>
+			</div>
+		{/if}
 	</div>
-{:else if !post}
-	<div class="error-container">
-		<h1>😢 Post nicht gefunden</h1>
-		<p>Dieser Post existiert nicht oder wurde gelöscht.</p>
-		<a href="/" class="back-btn">Zurück zur Startseite</a>
-	</div>
-{:else}
-	<main class="post-detail">
-		<div class="hero-section">
-			{#if imageUrl}
-				<img src={imageUrl} alt={post.title} class="hero-image" />
-				<div class="hero-overlay"></div>
+
+	<div class="post-container">
+		<div class="post-header">
+			<h1 class="post-title">{post.title}</h1>
+			
+			<div class="post-rating">
+				<div class="rating-display">
+					{post.rating.average > 0 ? post.rating.average.toFixed(1) : 'Neu'}
+				</div>
+				<div class="rating-info">
+					<div class="rating-stars">{'★'.repeat(Math.round(post.rating.average))}{'☆'.repeat(5 - Math.round(post.rating.average))}</div>
+					<div class="rating-count">{post.rating.amount} Bewertungen</div>
+				</div>
+			</div>
+
+			{#if creator}
+				<div class="post-creator">
+					<img src={creator.image} alt={creator.name} class="creator-avatar" />
+					<div class="creator-info">
+						<div class="creator-label">Bewertet von</div>
+						<a href="/@{creator.handle}" class="creator-name">{creator.name}</a>
+					</div>
+				</div>
+			{/if}
+
+			<div class="post-meta">
+				<span class="meta-item">📅 {new Date(post.createdAt).toLocaleDateString('de-DE')}</span>
+			</div>
+		</div>
+
+		<div class="post-content">
+			<h2>Beschreibung</h2>
+			<p class="content-text">{post.content}</p>
+		</div>
+
+		<div class="reviews-section">
+			<h2>Bewertungen ({ratings.length})</h2>
+			
+			{#if ratings.length === 0}
+				<div class="no-reviews">
+					<p>Noch keine Bewertungen vorhanden.</p>
+					<p class="no-reviews-hint">Sei der Erste, der dieses Gericht bewertet!</p>
+				</div>
 			{:else}
-				<div class="hero-placeholder">
-					<span class="hero-icon">🍽️</span>
+				<div class="reviews-list">
+					{#each ratings as rating}
+						<div class="review-card">
+							<div class="review-header">
+								<div class="review-user">
+									<img src={rating.user?.image || '/default-avatar.png'} alt="User" class="review-avatar" />
+									<div>
+										<div class="review-username">{rating.user?.name || 'Anonym'}</div>
+										<div class="review-date">{new Date(rating.createdAt).toLocaleDateString('de-DE')}</div>
+									</div>
+								</div>
+								<div class="review-rating">
+									{rating.rating.toFixed(1)} ★
+								</div>
+							</div>
+							{#if rating.comment}
+								<p class="review-comment">{rating.comment}</p>
+							{/if}
+						</div>
+					{/each}
 				</div>
 			{/if}
 		</div>
 
-		<div class="post-container">
-			<div class="post-header">
-				<h1 class="post-title">{post.title}</h1>
-				
-				<div class="post-rating">
-					<div class="rating-display">
-						{post.rating.average > 0 ? post.rating.average.toFixed(1) : 'Neu'}
-					</div>
-					<div class="rating-info">
-						<div class="rating-stars">{'★'.repeat(Math.round(post.rating.average))}{'☆'.repeat(5 - Math.round(post.rating.average))}</div>
-						<div class="rating-count">{post.rating.amount} Bewertungen</div>
-					</div>
-				</div>
-
-				{#if creator}
-					<div class="post-creator">
-						<img src={creator.image} alt={creator.name} class="creator-avatar" />
-						<div class="creator-info">
-							<div class="creator-label">Bewertet von</div>
-							<a href="/@{creator.handle}" class="creator-name">{creator.name}</a>
-						</div>
-					</div>
-				{/if}
-
-				<div class="post-meta">
-					<span class="meta-item">📅 {new Date(post.createdAt).toLocaleDateString('de-DE')}</span>
-				</div>
-			</div>
-
-			<div class="post-content">
-				<h2>Beschreibung</h2>
-				<p class="content-text">{post.content}</p>
-			</div>
-
-			<div class="reviews-section">
-				<h2>Bewertungen ({ratings.length})</h2>
-				
-				{#if ratings.length === 0}
-					<div class="no-reviews">
-						<p>Noch keine Bewertungen vorhanden.</p>
-						<p class="no-reviews-hint">Sei der Erste, der dieses Gericht bewertet!</p>
-					</div>
-				{:else}
-					<div class="reviews-list">
-						{#each ratings as rating}
-							<div class="review-card">
-								<div class="review-header">
-									<div class="review-user">
-										<img src={rating.user?.image || '/default-avatar.png'} alt="User" class="review-avatar" />
-										<div>
-											<div class="review-username">{rating.user?.name || 'Anonym'}</div>
-											<div class="review-date">{new Date(rating.createdAt).toLocaleDateString('de-DE')}</div>
-										</div>
-									</div>
-									<div class="review-rating">
-										{rating.rating.toFixed(1)} ★
-									</div>
-								</div>
-								{#if rating.comment}
-									<p class="review-comment">{rating.comment}</p>
-								{/if}
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
-
-			<div class="actions">
-				<a href="/upload" class="rate-btn">Bewerten</a>
-				<a href="/" class="back-link">← Zurück zur Übersicht</a>
-			</div>
+		<div class="actions">
+			<a href="/upload" class="rate-btn">Bewerten</a>
+			<a href="/" class="back-link">← Zurück zur Übersicht</a>
 		</div>
-	</main>
-{/if}
+	</div>
+</main>
 
 <style>
 	:global(body) {
 		background-color: #181818;
 		color: #fff;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	}
-
-	.loading-container,
-	.error-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: 70vh;
-		text-align: center;
-		padding: 40px;
-	}
-
-	.loading-spinner {
-		font-size: 80px;
-		animation: spin 2s linear infinite;
-	}
-
-	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
-	}
-
-	.error-container h1 {
-		font-size: 42px;
-		margin-bottom: 20px;
-	}
-
-	.back-btn {
-		margin-top: 30px;
-		padding: 14px 28px;
-		background-color: #ff9000;
-		color: #000;
-		text-decoration: none;
-		border-radius: 25px;
-		font-weight: bold;
-		transition: background-color 0.3s ease;
-	}
-
-	.back-btn:hover {
-		background-color: #e07e00;
 	}
 
 	.hero-section {

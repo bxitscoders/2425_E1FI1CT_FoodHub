@@ -9,6 +9,7 @@ export const posts = pgTable("posts", {
 		.references(() => user.id),
 	title: text("title").notNull(),
 	content: text("content").notNull(),
+	category: text("category").default("Andere"),
 	createdAt: timestamp("created_at")
 		.default(sql`now()`)
 		.notNull()

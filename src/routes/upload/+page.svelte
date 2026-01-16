@@ -8,7 +8,6 @@
 	let textContent = $state("");
 	let titleContent = $state("");
 	let categoryContent = $state("Pizza");
-	let ratingContent = $state(5);
 	let isDragging = $state(false);
 
 	// File handling
@@ -117,7 +116,7 @@
 		<!-- Category -->
 		<div class="form-group">
 			<label for="category" class="form-label">Kategorie</label>
-			<select id="category" bind:value={categoryContent} class="form-select">
+			<select id="category" name="category" bind:value={categoryContent} class="form-select">
 				<option value="Pizza">Pizza</option>
 				<option value="Burger">Burger</option>
 				<option value="Vegan">Vegan</option>
@@ -127,24 +126,6 @@
 				<option value="Mexikanisch">Mexikanisch</option>
 				<option value="Andere">Andere</option>
 			</select>
-		</div>
-
-		<!-- Rating -->
-		<div class="form-group">
-			<label for="rating" class="form-label">Bewertung <span class="required">*</span></label>
-			<div class="rating-container">
-				{#each [1, 2, 3, 4, 5] as star}
-					<button
-						type="button"
-						class="star-btn"
-						class:active={star <= ratingContent}
-						onclick={() => (ratingContent = star)}
-					>
-						★
-					</button>
-				{/each}
-				<span class="rating-text">{ratingContent} von 5 Sternen</span>
-			</div>
 		</div>
 
 		<!-- Image Upload -->
@@ -282,35 +263,6 @@
 		outline: none;
 		border-color: #ff9000;
 		background-color: #3a3a3a;
-	}
-
-	.rating-container {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-
-	.star-btn {
-		background: none;
-		border: none;
-		font-size: 40px;
-		color: #444;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		padding: 0;
-	}
-
-	.star-btn:hover,
-	.star-btn.active {
-		color: #ff9000;
-		transform: scale(1.1);
-	}
-
-	.rating-text {
-		margin-left: 15px;
-		font-size: 16px;
-		color: #bbb;
-		font-weight: 600;
 	}
 
 	.drop-zone {
