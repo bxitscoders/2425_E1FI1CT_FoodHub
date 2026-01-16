@@ -2,7 +2,7 @@ import { form, getRequestEvent, query } from "$app/server";
 import { db } from "$lib/server/db";
 import { posts, postRatings } from "$lib/server/db/post-schema";
 import { MINIO_BUCKET_NAME, minioClient } from "$lib/server/minio";
-import { error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { desc, eq, sql } from "drizzle-orm";
 import sharp from "sharp";
 import * as v from "valibot";
@@ -120,7 +120,7 @@ export const createPost = form(
 			"Content-Type": "image/webp"
 		});
 
-		return newPost;
+		redirect(303, "/");
 	}
 );
 
@@ -131,9 +131,9 @@ export const loadImageByPostId = query(v.object({ postId: v.number() }), async (
 	if (!post || post.length === 0) return null;
 
 	const objectName = `${post[0].id}.webp`;
-    const objectStat = await minioClient.statObject(MINIO_BUCKET_NAME, objectName).catch(() => null);
-    if (!objectStat) return null;
+	const objectStat = await minioClient.statObject(MINIO_BUCKET_NAME, objectName).catch(() => null);
+	if (!objectStat) return null;
 
-    const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET_NAME, objectName, 3600);
-    return presignedUrl;
+	const presignedUrl = await minioClient.presignedGetObject(MINIO_BUCKET_NAME, objectName, 3600);
+	return presignedUrl;
 });
