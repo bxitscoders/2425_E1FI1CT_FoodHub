@@ -64,8 +64,8 @@
 
 	<div class="min-w-0 flex-1">
 		<div class="mb-0.5 flex items-center gap-1">
-			<span class="font-bold text-[#e7e9ea] hover:underline">{postCreator?.name}</span>
-			<span class="text-[#71767b]">@{postCreator?.handle}</span>
+			<a href="/@{postCreator?.handle}" class="font-bold text-[#e7e9ea] hover:underline">{postCreator?.name}</a>
+			<a href="/@{postCreator?.handle}" class="text-[#71767b] hover:underline">@{postCreator?.handle}</a>
 			<span class="text-[#71767b]">·</span>
 			<span class="text-[#71767b] hover:underline">{formatDate(post.createdAt ?? Date.now())}</span>
 		</div>

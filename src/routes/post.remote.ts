@@ -73,7 +73,7 @@ export const loadPostsByUserId = query(v.object({ userId: v.string() }), async (
 		.leftJoin(postRatings, eq(postRatings.postId, posts.id))
 		.where(eq(posts.userId, userId))
 		.groupBy(posts.id)
-		.orderBy(posts.createdAt);
+		.orderBy(desc(posts.createdAt));
 
 	return userPosts.map((r) => ({
 		id: r.post.id,
