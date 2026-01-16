@@ -9,10 +9,30 @@ export const posts = pgTable("posts", {
 		.references(() => user.id),
 	title: text("title").notNull(),
 	content: text("content").notNull(),
-	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+	createdAt: timestamp("created_at")
+		.default(sql`now()`)
+		.notNull()
 });
 
-export const postRatings = pgTable("post_ratings", {
+export const postRatings = pgTable(
+	"post_ratings",
+	{
+		id: serial("id").primaryKey(),
+		postId: integer("post_id")
+			.notNull()
+			.references(() => posts.id, { onDelete: "cascade" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		rating: doublePrecision("rating").notNull(),
+		createdAt: timestamp("created_at")
+			.default(sql`now()`)
+			.notNull()
+	},
+	(table) => [unique().on(table.postId, table.userId)]
+);
+
+export const postMessages = pgTable("post_messages", {
 	id: serial("id").primaryKey(),
 	postId: integer("post_id")
 		.notNull()
@@ -20,9 +40,8 @@ export const postRatings = pgTable("post_ratings", {
 	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
-	rating: doublePrecision("rating").notNull(),
-	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
-	content: text("content").notNull()
-}, (table) => [
-	unique().on(table.postId, table.userId)
-]);
+	content: text("content").notNull(),
+	createdAt: timestamp("created_at")
+		.default(sql`now()`)
+		.notNull()
+});

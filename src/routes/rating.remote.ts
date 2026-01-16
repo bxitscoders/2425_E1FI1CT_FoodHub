@@ -1,6 +1,6 @@
 import { form, getRequestEvent, query } from "$app/server";
 import { db } from "$lib/server/db";
-import { postRatings } from "$lib/server/db/post-schema";
+import { postRatings, postMessages } from "$lib/server/db/post-schema";
 import { error } from "@sveltejs/kit";
 import { eq, and } from "drizzle-orm";
 import * as v from "valibot";
@@ -8,15 +8,14 @@ import * as v from "valibot";
 export const createRating = form(
 	v.object({
 		postId: v.pipe(v.number()),
-		rating: v.pipe(v.number(), v.minValue(0.5), v.maxValue(5)),
-		content: v.pipe(v.string(), v.maxLength(2056))
+		rating: v.pipe(v.number(), v.minValue(0.5), v.maxValue(5))
 	}),
 	async (schema) => {
 		const event = getRequestEvent();
 		const user = event.locals.user;
 		if (!user) error(401, "Unauthorized");
 
-		const { postId, rating, content } = schema;
+		const { postId, rating } = schema;
 
 		const [existingRating] = await db
 			.select({ id: postRatings.id })
@@ -27,8 +26,7 @@ export const createRating = form(
 		await db.insert(postRatings).values({
 			postId,
 			userId: user.id,
-			rating,
-			content
+			rating
 		});
 	}
 );
@@ -61,8 +59,7 @@ export const upsertRating = query(
 			await db.insert(postRatings).values({
 				postId,
 				userId: user.id,
-				rating: ratingValue,
-				content: "asdasd"
+				rating: ratingValue
 			});
 		}
 	}
@@ -79,7 +76,6 @@ export const getRatings = query(
 				.select({
 					userId: postRatings.userId,
 					rating: postRatings.rating,
-					content: postRatings.content,
 					createdAt: postRatings.createdAt
 				})
 				.from(postRatings)
@@ -89,9 +85,47 @@ export const getRatings = query(
 				({
 					userId: rating.userId,
 					value: rating.rating,
-					content: rating.content,
 					createdAt: rating.createdAt
 				}) as RatingDTO
 		);
+	}
+);
+
+export const createMessage = form(
+	v.object({
+		postId: v.pipe(v.number()),
+		content: v.pipe(v.string(), v.maxLength(2056))
+	}),
+	async (schema) => {
+		const event = getRequestEvent();
+		const user = event.locals.user;
+		if (!user) error(401, "Unauthorized");
+
+		const { postId, content } = schema;
+
+		await db.insert(postMessages).values({
+			postId,
+			userId: user.id,
+			content
+		});
+	}
+);
+
+export const getMessages = query(
+	v.object({
+		postId: v.number()
+	}),
+	async (schema) => {
+		const { postId } = schema;
+		return await db
+			.select({
+				id: postMessages.id,
+				userId: postMessages.userId,
+				content: postMessages.content,
+				createdAt: postMessages.createdAt
+			})
+			.from(postMessages)
+			.where(eq(postMessages.postId, postId))
+			.orderBy(postMessages.createdAt);
 	}
 );

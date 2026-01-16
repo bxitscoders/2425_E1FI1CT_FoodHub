@@ -1,6 +1,5 @@
 type RatingDTO = {
-    userId: string;
-    value: number;
-    createdAt: Date;
-    content: string;
-}
+	userId: string;
+	value: number;
+	createdAt: Date;
+};
