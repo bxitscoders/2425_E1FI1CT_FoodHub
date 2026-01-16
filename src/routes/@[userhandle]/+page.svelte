@@ -1,8 +1,14 @@
 <script lang="ts">
 	import PostSummary from "$lib/components/posts/PostSummary.svelte";
 	import type { PageData } from "./$types";
+	import { authClient } from "$lib/auth-client";
+	import { isAdmin } from "$lib/admin";
+	import { enhance } from "$app/forms";
 
 	let { data }: { data: PageData } = $props();
+
+	const session = authClient.useSession();
+	const isUserAdmin = $derived($session.data?.user ? isAdmin($session.data.user) : false);
 
 	const getInitials = (name: string) => {
 		return name
@@ -58,6 +64,30 @@
 					<div class="stat-label text-sm text-gray-400">Avg Rating</div>
 				</div>
 			</div>
+
+			{#if isUserAdmin}
+				<div class="mt-6">
+					<form method="POST" action="?/deleteAllPosts" use:enhance={(event) => {
+						if (!confirm(`Möchtest du wirklich ALLE ${data.posts.length} Posts von ${data.profileUser.name} löschen?`)) {
+							event.cancel();
+							return;
+						}
+						return async ({ result }) => {
+							if (result.type === 'success') {
+								alert(`Posts erfolgreich gelöscht!`);
+								location.reload();
+							}
+						};
+					}}>
+						<button 
+							type="submit"
+							class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-red-700 hover:shadow-lg"
+						>
+							🗑️ Alle Posts löschen (Admin)
+						</button>
+					</form>
+				</div>
+			{/if}
 		</div>
 	</div>
 

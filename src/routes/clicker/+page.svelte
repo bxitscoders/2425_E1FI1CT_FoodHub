@@ -1,7 +1,95 @@
 <svelte:head>
 	<title>Foodhub - Burger Empire 💰</title>
-	<link rel="stylesheet" href="/clicker-features.css" />
+	<link rel="stylesheet" href="/clicker-enhanced.css" />
 </svelte:head>
+
+<!-- Help Button -->
+<button class="help-button" onclick={() => showHelp = !showHelp} title="Hilfe & Anleitung (Drücke H)">
+	<span class="help-icon">❓</span>
+</button>
+
+<!-- Quick Tutorial for First-Time Players -->
+{#if totalClicks === 0 && !showHelp}
+	<div class="tutorial-overlay">
+		<div class="tutorial-arrow">👇</div>
+		<div class="tutorial-text">
+			Klicke auf den Burger um zu starten!
+		</div>
+	</div>
+{/if}
+
+{#if totalClicks > 0 && totalClicks < 10 && totalUpgradesBought === 0}
+	<div class="tutorial-overlay-shop">
+		<div class="tutorial-arrow-right">👈</div>
+		<div class="tutorial-text">
+			Kaufe dein erstes Upgrade im Shop!
+		</div>
+	</div>
+{/if}
+
+<!-- Help Modal -->
+{#if showHelp}
+	<div class="help-modal" role="button" tabindex="0" onclick={() => showHelp = false} onkeydown={(e) => e.key === 'Escape' && (showHelp = false)}>
+		<div class="help-content" role="dialog" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+			<button class="help-close" onclick={() => showHelp = false}>✖</button>
+			<h2 style="color:#ff9000;text-align:center;margin-bottom:20px;">🍔 Spielanleitung</h2>
+			<div class="help-section">
+				<h3>🎮 Grundlagen</h3>
+				<p><strong>Ziel:</strong> Baue dein Burger-Imperium auf und verdiene so viel Geld wie möglich!</p>
+				<p><strong>Klicken:</strong> Klicke auf den großen Burger, um Geld zu verdienen</p>
+				<p><strong>Upgrades:</strong> Kaufe Upgrades im Shop, um automatisches Einkommen zu erhalten</p>
+			</div>
+			<div class="help-section">
+				<h3>⭐ Prestige System</h3>
+				<p>Ab 1 Million € kannst du Prestige machen:</p>
+				<ul>
+					<li>Erhalte permanente Prestige-Punkte</li>
+					<li>Jeder Punkt = +5% auf alle Einnahmen</li>
+					<li>Verliere alle Upgrades & Geld (behalte Achievements)</li>
+				</ul>
+			</div>
+			<div class="help-section">
+				<h3>🎁 Tägliche Features</h3>
+				<p><strong>Tägliche Belohnung:</strong> Einmal pro Tag Bonus-Geld abholen</p>
+				<p><strong>Challenges:</strong> Erfülle tägliche Aufgaben für Extra-Belohnungen</p>
+			</div>
+			<div class="help-section">
+				<h3>⚡ Power-Ups</h3>
+				<p><strong>Boosts:</strong> Kaufe temporäre Multiplikatoren im Boost Shop</p>
+				<p><strong>Events:</strong> Zufällige Events geben Boni oder Herausforderungen</p>
+				<p><strong>Golden Burger:</strong> Erscheint zufällig - klicke für 7x Multiplikator!</p>
+			</div>
+			<div class="help-section">
+				<h3>👥 Team & Forschung</h3>
+				<p><strong>Mitarbeiter:</strong> Stelle Personal ein für permanente Boni</p>
+				<p><strong>Forschung:</strong> Schalte neue Technologien für Verbesserungen frei</p>
+			</div>
+			<div class="help-section">
+				<h3>🎰 Mini-Games</h3>
+				<p><strong>Slot Machine:</strong> Setze 1.000€ für Gewinnchance</p>
+				<p><strong>Burger Flipper:</strong> Schnell-Klick-Spiel für Bonus-Geld</p>
+			</div>
+			<div class="help-section">
+				<h3>💡 Tipps</h3>
+				<ul>
+					<li>Kaufe zuerst günstige Upgrades für schnellen Start</li>
+					<li>Balance zwischen Klick-Upgrades und passivem Einkommen</li>
+					<li>Nutze Boosts bei hohem passivem Einkommen</li>
+					<li>Mache Prestige, wenn Fortschritt langsam wird</li>
+					<li>Achte auf den Markt-Multiplikator!</li>
+				</ul>
+			</div>
+			<div class="help-section">
+				<h3>⌨️ Tastatur-Shortcuts</h3>
+				<ul>
+					<li><strong>Leertaste / Enter:</strong> Burger klicken</li>
+					<li><strong>H oder ?:</strong> Diese Hilfe öffnen/schließen</li>
+					<li><strong>ESC:</strong> Hilfe schließen</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <div class="news-ticker" id="newsTicker">
 	<span class="ticker-icon">🍔</span>
@@ -83,11 +171,13 @@
 			<h3 class="upgrades-title">
 				<span class="title-icon">🛒</span>
 				<span>Upgrades Shop</span>
+				<button class="info-tooltip" title="Kaufe Upgrades für passives Einkommen und höhere Klick-Werte">ℹ️</button>
 			</h3>
 			<div id="upgradesContainer">
 				{#each upgrades as upgrade}
 					{@const cost = getCost(upgrade)}
 					{@const canAfford = money >= cost}
+					{@const percentToAfford = money / cost * 100}
 					{@const effectText =
 						upgrade.clickBonus > 0 && upgrade.owned > 0
 							? `+${formatNumber(upgrade.clickBonus * upgrade.owned * prestigeBonus)} €/Klick`
@@ -99,8 +189,10 @@
 					<div
 						class="upgrade-item"
 						class:disabled={!canAfford}
+						class:almost-affordable={!canAfford && percentToAfford >= 50}
 						role="button"
 						tabindex="0"
+						title={!canAfford ? `Noch ${formatNumber(cost - money)}€ benötigt` : 'Klicken zum Kaufen'}
 						onclick={() => canAfford && buyUpgrade(upgrade.id)}
 						onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && canAfford && buyUpgrade(upgrade.id)}
 					>
@@ -109,7 +201,9 @@
 							<div class="upgrade-name">{upgrade.name}</div>
 							<div class="upgrade-stats">{effectText} | Besitz: {upgrade.owned}</div>
 						</div>
-						<div class="upgrade-cost">{formatNumber(cost)} €</div>
+						<div class="upgrade-cost" class:affordable={canAfford}>
+							{formatNumber(cost)} €
+						</div>
 					</div>
 				{/each}
 			</div>
@@ -171,7 +265,10 @@
 		
 		<!-- Daily Reward Panel -->
 		<div class="feature-panel">
-			<h3 class="feature-title">🎁 Tägliche Belohnung</h3>
+			<h3 class="feature-title">
+				🎁 Tägliche Belohnung
+				<button class="info-tooltip" title="Hole dir jeden Tag eine kostenlose Belohnung ab! Wert: 10 Minuten passives Einkommen">ℹ️</button>
+			</h3>
 			{#if !dailyRewardClaimed}
 				<button class="feature-btn primary" onclick={claimDailyReward}>
 					<span class="btn-icon">🎁</span>
@@ -179,13 +276,17 @@
 				</button>
 			{:else}
 				<div class="claimed-badge">✅ Bereits abgeholt</div>
+				<p style="text-align:center;color:#888;margin-top:10px;font-size:14px;">Komm morgen wieder!</p>
 			{/if}
 		</div>
 
 		<!-- Daily Challenge -->
 		{#if dailyChallenge}
 			<div class="feature-panel">
-				<h3 class="feature-title">🎯 Tägliche Challenge</h3>
+				<h3 class="feature-title">
+					🎯 Tägliche Challenge
+					<button class="info-tooltip" title="Erfülle die tägliche Challenge für eine Extra-Belohnung!">ℹ️</button>
+				</h3>
 				<div class="challenge-info">
 					<div class="challenge-name">{dailyChallenge.name}</div>
 					<div class="challenge-desc">{dailyChallenge.desc}</div>
@@ -204,7 +305,10 @@
 
 		<!-- Market Status -->
 		<div class="feature-panel">
-			<h3 class="feature-title">📈 Markt Status</h3>
+			<h3 class="feature-title">
+				📈 Markt Status
+				<button class="info-tooltip" title="Der Markt schwankt zufällig und beeinflusst deine Einnahmen. Ändert sich alle 2 Minuten.">ℹ️</button>
+			</h3>
 			<div class="market-info">
 				<div class="market-trend" class:up={marketTrend === 'up'} class:down={marketTrend === 'down'}>
 					{marketTrend === 'up' ? '📈 BOOM!' : marketTrend === 'down' ? '📉 CRASH!' : '➡️ STABIL'}
@@ -249,7 +353,10 @@
 
 		<!-- Boosts Shop -->
 		<div class="feature-panel">
-			<h3 class="feature-title">⚡ Boost Shop</h3>
+			<h3 class="feature-title">
+				⚡ Boost Shop
+				<button class="info-tooltip" title="Kaufe temporäre Power-Ups für massive Multiplikatoren! Am besten bei hohem passivem Einkommen nutzen.">ℹ️</button>
+			</h3>
 			<div class="boosts-shop">
 				{#each boostTypes as boost}
 					{@const canAfford = money >= boost.cost}
@@ -268,7 +375,10 @@
 
 		<!-- Mini Games -->
 		<div class="feature-panel">
-			<h3 class="feature-title">🎮 Mini-Games</h3>
+			<h3 class="feature-title">
+				🎮 Mini-Games
+				<button class="info-tooltip" title="Spiele Mini-Games für zusätzliches Geld! Slot Machine kostet 1.000€, Burger Flipper ist kostenlos.">ℹ️</button>
+			</h3>
 			<div class="minigames-container">
 				<button 
 					class="minigame-btn"
@@ -301,7 +411,10 @@
 
 		<!-- Employees -->
 		<div class="feature-panel">
-			<h3 class="feature-title">👥 Mitarbeiter</h3>
+			<h3 class="feature-title">
+				👥 Mitarbeiter
+				<button class="info-tooltip" title="Stelle Mitarbeiter ein für permanente Boni! Jeder Mitarbeiter-Typ kann mehrfach eingestellt werden.">ℹ️</button>
+			</h3>
 			<div class="employees-list">
 				{#each employeeTypes as emp}
 					{@const canAfford = money >= emp.cost && emp.hired < emp.max}
@@ -320,7 +433,10 @@
 
 		<!-- Research -->
 		<div class="feature-panel">
-			<h3 class="feature-title">🔬 Forschung</h3>
+			<h3 class="feature-title">
+				🔬 Forschung
+				<button class="info-tooltip" title="Erforsche neue Technologien für permanente Verbesserungen! Manche benötigen Voraussetzungen.">ℹ️</button>
+			</h3>
 			<div class="research-list">
 				{#each researchOptions as r}
 					{@const canAfford = money >= r.cost && !r.researched}
@@ -769,6 +885,21 @@
 		filter: grayscale(0.5);
 	}
 
+	:global(.upgrade-item.almost-affordable) {
+		opacity: 0.75;
+		border-color: rgba(255, 144, 0, 0.4);
+		animation: almostAffordable 1.5s ease-in-out infinite;
+	}
+
+	@keyframes almostAffordable {
+		0%, 100% {
+			border-color: rgba(255, 144, 0, 0.4);
+		}
+		50% {
+			border-color: rgba(255, 144, 0, 0.7);
+		}
+	}
+
 	:global(.upgrade-icon) {
 		font-size: 50px;
 		margin-right: 20px;
@@ -807,6 +938,19 @@
 		white-space: nowrap;
 		box-shadow: 0 3px 15px rgba(255, 144, 0, 0.3);
 		transition: all 0.3s ease;
+	}
+
+	:global(.upgrade-cost.affordable) {
+		animation: affordable 1s ease-in-out infinite;
+	}
+
+	@keyframes affordable {
+		0%, 100% {
+			box-shadow: 0 3px 15px rgba(255, 144, 0, 0.3);
+		}
+		50% {
+			box-shadow: 0 5px 25px rgba(255, 144, 0, 0.6);
+		}
 	}
 
 	:global(.upgrade-item:hover:not(.disabled) .upgrade-cost) {
@@ -1289,9 +1433,315 @@
 		font-size: 15px;
 	}
 
+	/* Help Button */
+	.help-button {
+		position: fixed;
+		top: 80px;
+		right: 30px;
+		width: 60px;
+		height: 60px;
+		background: linear-gradient(135deg, #4caf50, #2e7d32);
+		border: 3px solid rgba(76, 175, 80, 0.5);
+		border-radius: 50%;
+		cursor: pointer;
+		font-size: 28px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 3000;
+		box-shadow: 0 5px 25px rgba(76, 175, 80, 0.4);
+		transition: all 0.3s ease;
+		animation: helpPulse 2s ease-in-out infinite;
+	}
+
+	@keyframes helpPulse {
+		0%, 100% {
+			box-shadow: 0 5px 25px rgba(76, 175, 80, 0.4);
+		}
+		50% {
+			box-shadow: 0 8px 35px rgba(76, 175, 80, 0.7);
+		}
+	}
+
+	.help-button:hover {
+		transform: scale(1.1) rotate(15deg);
+		box-shadow: 0 8px 35px rgba(76, 175, 80, 0.7);
+	}
+
+	.help-icon {
+		color: #fff;
+		font-weight: bold;
+	}
+
+	/* Help Modal */
+	.help-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.9);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 10000;
+		animation: fadeIn 0.3s ease;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.help-content {
+		background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+		border: 2px solid #ff9000;
+		border-radius: 20px;
+		padding: 40px;
+		max-width: 700px;
+		max-height: 85vh;
+		overflow-y: auto;
+		position: relative;
+		box-shadow: 0 20px 60px rgba(255, 144, 0, 0.5);
+		animation: slideUp 0.4s ease;
+	}
+
+	@keyframes slideUp {
+		from {
+			transform: translateY(50px);
+			opacity: 0;
+		}
+		to {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	}
+
+	.help-content::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	.help-content::-webkit-scrollbar-track {
+		background: rgba(0, 0, 0, 0.2);
+		border-radius: 10px;
+	}
+
+	.help-content::-webkit-scrollbar-thumb {
+		background: linear-gradient(180deg, #ff9000, #e07e00);
+		border-radius: 10px;
+	}
+
+	.help-close {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		background: #ff3333;
+		border: none;
+		color: #fff;
+		width: 35px;
+		height: 35px;
+		border-radius: 50%;
+		font-size: 18px;
+		font-weight: bold;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.help-close:hover {
+		background: #cc0000;
+		transform: rotate(90deg);
+	}
+
+	.help-section {
+		background: rgba(0, 0, 0, 0.3);
+		border-radius: 12px;
+		padding: 20px;
+		margin-bottom: 20px;
+		border-left: 4px solid #ff9000;
+	}
+
+	.help-section h3 {
+		color: #ff9000;
+		margin-top: 0;
+		margin-bottom: 15px;
+		font-size: 20px;
+	}
+
+	.help-section p {
+		color: #ddd;
+		line-height: 1.8;
+		margin: 10px 0;
+	}
+
+	.help-section ul {
+		color: #ddd;
+		line-height: 1.8;
+		margin: 10px 0;
+		padding-left: 25px;
+	}
+
+	.help-section li {
+		margin: 8px 0;
+	}
+
+	.help-section strong {
+		color: #ffb347;
+	}
+
+	/* Info Tooltip Button */
+	.info-tooltip {
+		background: rgba(255, 144, 0, 0.2);
+		border: 1px solid rgba(255, 144, 0, 0.4);
+		color: #ff9000;
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+		cursor: help;
+		font-size: 12px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-left: auto;
+		transition: all 0.3s ease;
+	}
+
+	.info-tooltip:hover {
+		background: rgba(255, 144, 0, 0.3);
+		transform: scale(1.15);
+		box-shadow: 0 0 15px rgba(255, 144, 0, 0.5);
+	}
+
+	.upgrades-title {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	/* Tutorial Overlays */
+	.tutorial-overlay {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 5000;
+		text-align: center;
+		pointer-events: none;
+		animation: tutorialBounce 2s ease-in-out infinite;
+	}
+
+	@keyframes tutorialBounce {
+		0%, 100% {
+			transform: translate(-50%, -50%);
+		}
+		50% {
+			transform: translate(-50%, -60%);
+		}
+	}
+
+	.tutorial-arrow {
+		font-size: 64px;
+		margin-bottom: 20px;
+		animation: tutorialRotate 2s ease-in-out infinite;
+	}
+
+	@keyframes tutorialRotate {
+		0%, 100% {
+			transform: rotate(0deg);
+		}
+		25% {
+			transform: rotate(-10deg);
+		}
+		75% {
+			transform: rotate(10deg);
+		}
+	}
+
+	.tutorial-text {
+		background: linear-gradient(135deg, #ff9000, #e07e00);
+		color: #000;
+		padding: 20px 30px;
+		border-radius: 15px;
+		font-size: 24px;
+		font-weight: bold;
+		box-shadow: 0 10px 40px rgba(255, 144, 0, 0.6);
+		border: 3px solid #ffb347;
+		animation: tutorialGlow 1.5s ease-in-out infinite;
+	}
+
+	@keyframes tutorialGlow {
+		0%, 100% {
+			box-shadow: 0 10px 40px rgba(255, 144, 0, 0.6);
+		}
+		50% {
+			box-shadow: 0 15px 50px rgba(255, 144, 0, 0.9);
+		}
+	}
+
+	.tutorial-overlay-shop {
+		position: fixed;
+		bottom: 150px;
+		left: 50px;
+		z-index: 5000;
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		pointer-events: none;
+		animation: tutorialSlide 2s ease-in-out infinite;
+	}
+
+	@keyframes tutorialSlide {
+		0%, 100% {
+			transform: translateX(0);
+		}
+		50% {
+			transform: translateX(-15px);
+		}
+	}
+
+	.tutorial-arrow-right {
+		font-size: 48px;
+		animation: tutorialRotate 2s ease-in-out infinite;
+	}
+
 	@media (max-width: 1200px) {
 		.game-layout {
 			grid-template-columns: 1fr;
+		}
+
+		.help-content {
+			max-width: 90%;
+			padding: 25px;
+		}
+
+		.help-button {
+			width: 50px;
+			height: 50px;
+			font-size: 24px;
+		}
+
+		.tutorial-overlay-shop {
+			bottom: 100px;
+			left: 20px;
+		}
+
+		.tutorial-text {
+			font-size: 18px;
+			padding: 15px 20px;
+		}
+
+		.tutorial-arrow {
+			font-size: 48px;
+		}
+
+		.tutorial-arrow-right {
+			font-size: 36px;
 		}
 	}
 </style>
@@ -1301,20 +1751,23 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 
-	let money = 0,
-		clickValue = 1,
-		incomePerSecond = 0,
-		totalEarned = 0,
-		totalClicks = 0,
-		totalUpgradesBought = 0;
-	let bonusActive = false,
-		frenzyActive = false,
-		soundEnabled = true,
-		wrinklersPopped = 0;
-	let startTime = Date.now(),
-		offlineTime = 0;
-	let prestigeLevel = 0,
-		prestigeBonus = 1;
+	let money = $state(0);
+	let clickValue = $state(1);
+	let incomePerSecond = $state(0);
+	let totalEarned = $state(0);
+	let totalClicks = $state(0);
+	let totalUpgradesBought = $state(0);
+	let bonusActive = $state(false);
+	let frenzyActive = $state(false);
+	let soundEnabled = $state(true);
+	let wrinklersPopped = $state(0);
+	let startTime = $state(Date.now());
+	let offlineTime = $state(0);
+	let prestigeLevel = $state(0);
+	let prestigeBonus = $state(1);
+
+	// UI State
+	let showHelp = $state(false);
 
 	// Neue Features
 	let activeBoosts = $state([]);
@@ -2341,10 +2794,39 @@
 		updateDisplay();
 		updatePrestigeDisplay();
 
+		// Show welcome message for new players
+		const isFirstVisit = !localStorage.getItem('burgerClickerSave');
+		if (isFirstVisit) {
+			setTimeout(() => {
+				showHelp = true;
+				showAchievement('👋 Willkommen! Drücke H für Hilfe!');
+			}, 1000);
+		}
+
 		const burgerBtn = document.getElementById('burgerBtn');
 		if (burgerBtn) {
 			burgerBtn.addEventListener('click', handleClick);
 		}
+
+		// Keyboard Shortcuts
+		const handleKeyPress = (e) => {
+			if (e.key === 'h' || e.key === 'H' || e.key === '?') {
+				showHelp = !showHelp;
+			}
+			if (e.key === 'Escape') {
+				showHelp = false;
+			}
+			if (e.key === ' ' || e.key === 'Enter') {
+				// Spacebar or Enter to click burger
+				const burger = document.getElementById('burgerBtn');
+				if (burger && !showHelp) {
+					e.preventDefault();
+					burger.click();
+				}
+			}
+		};
+		
+		document.addEventListener('keydown', handleKeyPress);
 
 		const soundToggle = document.getElementById('soundToggle');
 		if (soundToggle) {

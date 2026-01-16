@@ -18,12 +18,18 @@
 	// URL-Parameter lesen
 	$effect(() => {
 		const filterParam = $page.url.searchParams.get('filter');
+		const searchParam = $page.url.searchParams.get('search');
+		
 		if (filterParam) {
 			// Kapitalisiere ersten Buchstaben für Filter-Namen
 			const capitalizedFilter = filterParam.charAt(0).toUpperCase() + filterParam.slice(1);
 			if (filters.includes(capitalizedFilter)) {
 				activeFilter = capitalizedFilter;
 			}
+		}
+		
+		if (searchParam) {
+			searchQuery = searchParam;
 		}
 	});
 
@@ -134,39 +140,107 @@
 
 <svelte:head>
 	<title>Foodhub - Essen bewerten</title>
+	<meta name="description" content="Entdecke und bewerte die besten Restaurants und Gerichte in deiner Nähe" />
 </svelte:head>
 
+<!-- Welcome Banner für neue Besucher -->
+{#if filteredPosts.length === 0 && allPosts.length === 0 && !isLoading}
+	<div class="welcome-banner">
+		<h1>🍔 Willkommen bei FoodHub!</h1>
+		<p>Die Community-Plattform für Food-Lovers</p>
+		<div class="welcome-features">
+			<div class="feature">
+				<span class="feature-icon">📸</span>
+				<h3>Teilen</h3>
+				<p>Poste deine Food-Erlebnisse</p>
+			</div>
+			<div class="feature">
+				<span class="feature-icon">⭐</span>
+				<h3>Bewerten</h3>
+				<p>Rate Restaurants & Gerichte</p>
+			</div>
+			<div class="feature">
+				<span class="feature-icon">🎮</span>
+				<h3>Spielen</h3>
+				<p>Baue dein Burger-Imperium</p>
+			</div>
+		</div>
+		<button class="cta-button" onclick={() => window.location.href = '/upload'}>
+			Jetzt ersten Post erstellen! 🚀
+		</button>
+	</div>
+{/if}
+
 <section class="search-container">
-	<input
-		type="text"
-		bind:value={searchQuery}
-		placeholder="Suche nach Gerichten, Restaurants oder Usern..."
-		onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-	/>
-	<button onclick={handleSearch}>Suchen</button>
+	<div class="search-wrapper">
+		<span class="search-icon">🔍</span>
+		<input
+			type="text"
+			bind:value={searchQuery}
+			placeholder="Suche nach Gerichten, Restaurants oder Usern..."
+			onkeydown={(e) => e.key === 'Enter' && handleSearch()}
+			aria-label="Suchfeld"
+		/>
+		{#if searchQuery}
+			<button class="clear-button" onclick={() => searchQuery = ''} title="Suche löschen">✖</button>
+		{/if}
+	</div>
+	<button class="search-button" onclick={handleSearch} title="Suchen (Enter)">
+		<span class="button-text">Suchen</span>
+		<span class="button-icon">→</span>
+	</button>
 </section>
 
 <section class="controls">
 	<div class="filters">
+		<span class="filter-label">Kategorien:</span>
 		{#each filters as filter}
 			<button
+				class="filter-btn"
 				class:active={activeFilter === filter}
 				onclick={() => (activeFilter = filter)}
+				title={filter === 'Alle' ? 'Alle Kategorien anzeigen' : `Nur ${filter} anzeigen`}
 			>
-				{filter}
+				{#if filter === 'Pizza'}🍕
+				{:else if filter === 'Burger'}🍔
+				{:else if filter === 'Vegan'}🥗
+				{:else if filter === 'Asiatisch'}🍜
+				{:else if filter === 'Desserts'}🍰
+				{:else}📋{/if}
+				<span>{filter}</span>
 			</button>
 		{/each}
 	</div>
 	
 	<div class="sort-controls">
-		<label for="sort">Sortieren:</label>
-		<select id="sort" bind:value={sortBy}>
-			<option value="newest">Neueste</option>
-			<option value="topRated">Beste Bewertung</option>
-			<option value="mostReviewed">Meiste Bewertungen</option>
+		<label for="sort">
+			<span class="sort-icon">⚡</span>
+			Sortierung:
+		</label>
+		<select id="sort" bind:value={sortBy} class="sort-select">
+			<option value="newest">🆕 Neueste zuerst</option>
+			<option value="topRated">⭐ Beste Bewertung</option>
+			<option value="mostReviewed">💬 Meiste Bewertungen</option>
 		</select>
 	</div>
 </section>
+
+<!-- Results Info -->
+{#if searchQuery || activeFilter !== 'Alle'}
+	<div class="results-info">
+		<p>
+			<strong>{filteredPosts.length}</strong> 
+			{filteredPosts.length === 1 ? 'Ergebnis' : 'Ergebnisse'}
+			{#if searchQuery}für "<em>{searchQuery}</em>"{/if}
+			{#if activeFilter !== 'Alle'}in Kategorie <strong>{activeFilter}</strong>{/if}
+		</p>
+		{#if filteredPosts.length === 0}
+			<button class="reset-filters" onclick={() => { searchQuery = ''; activeFilter = 'Alle'; }}>
+				Filter zurücksetzen
+			</button>
+		{/if}
+	</div>
+{/if}
 
 <section class="card-container">
 	{#each filteredPosts as post}
@@ -191,11 +265,22 @@
 		</a>
 	{:else}
 		<div class="no-results">
-			<h2>😢 Keine Ergebnisse gefunden</h2>
+			<span class="no-results-icon">🔍</span>
+			<h2>Keine Ergebnisse gefunden</h2>
 			<p>Versuche es mit anderen Suchbegriffen oder Filtern</p>
+			<button class="reset-button" onclick={() => { searchQuery = ''; activeFilter = 'Alle'; }}>
+				Alle Posts anzeigen
+			</button>
 		</div>
 	{/each}
 </section>
+
+{#if isLoading}
+	<div class="loading-spinner">
+		<div class="spinner"></div>
+		<p>Lade weitere Posts...</p>
+	</div>
+{/if}
 
 <div bind:this={sentinel}></div>
 
@@ -207,43 +292,185 @@
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
 
+	/* Welcome Banner */
+	.welcome-banner {
+		max-width: 1000px;
+		margin: 40px auto;
+		padding: 60px 40px;
+		background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+		border-radius: 20px;
+		text-align: center;
+		border: 2px solid rgba(255, 144, 0, 0.3);
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+	}
+
+	.welcome-banner h1 {
+		font-size: 48px;
+		margin: 0 0 15px 0;
+		background: linear-gradient(135deg, #ff9000, #ffb347);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.welcome-banner > p {
+		font-size: 20px;
+		color: #bbb;
+		margin-bottom: 40px;
+	}
+
+	.welcome-features {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 30px;
+		margin-bottom: 40px;
+	}
+
+	.feature {
+		background: rgba(0, 0, 0, 0.3);
+		padding: 30px 20px;
+		border-radius: 15px;
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
+		border: 1px solid rgba(255, 144, 0, 0.2);
+	}
+
+	.feature:hover {
+		transform: translateY(-5px);
+		box-shadow: 0 8px 25px rgba(255, 144, 0, 0.3);
+		border-color: rgba(255, 144, 0, 0.5);
+	}
+
+	.feature-icon {
+		font-size: 48px;
+		display: block;
+		margin-bottom: 15px;
+	}
+
+	.feature h3 {
+		color: #ff9000;
+		margin: 0 0 10px 0;
+		font-size: 22px;
+	}
+
+	.feature p {
+		color: #aaa;
+		margin: 0;
+		font-size: 14px;
+	}
+
+	.cta-button {
+		background: linear-gradient(135deg, #ff9000, #e07e00);
+		border: none;
+		color: #000;
+		padding: 18px 40px;
+		font-size: 20px;
+		font-weight: bold;
+		border-radius: 30px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		box-shadow: 0 5px 20px rgba(255, 144, 0, 0.4);
+	}
+
+	.cta-button:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 30px rgba(255, 144, 0, 0.6);
+	}
+
+	/* Enhanced Search Container */
 	.search-container {
 		max-width: 920px;
 		margin: 40px auto 20px auto;
 		text-align: center;
 		padding: 0 15px;
+		display: flex;
+		gap: 0;
+	}
+
+	.search-wrapper {
+		flex: 1;
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 20px;
+		font-size: 20px;
+		color: #888;
+		pointer-events: none;
 	}
 
 	.search-container input[type='text'] {
-		width: 72%;
-		padding: 16px 20px;
+		width: 100%;
+		padding: 16px 50px 16px 55px;
 		font-size: 18px;
 		border-radius: 30px 0 0 30px;
-		border: none;
+		border: 2px solid #333;
 		outline: none;
 		background-color: #222;
 		color: #fff;
-		transition: background-color 0.3s ease;
+		transition: all 0.3s ease;
 	}
 
 	.search-container input[type='text']:focus {
-		background-color: #333;
+		background-color: #2a2a2a;
+		border-color: #ff9000;
 	}
 
-	.search-container button {
+	.clear-button {
+		position: absolute;
+		right: 15px;
+		background: rgba(255, 255, 255, 0.1);
+		border: none;
+		color: #888;
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.3s ease;
+		font-size: 14px;
+	}
+
+	.clear-button:hover {
+		background: rgba(255, 255, 255, 0.2);
+		color: #fff;
+	}
+
+	.search-button {
 		background-color: #ff9000;
 		border: none;
 		color: black;
-		padding: 16px 28px;
+		padding: 16px 32px;
 		font-weight: bold;
 		font-size: 18px;
 		border-radius: 0 30px 30px 0;
 		cursor: pointer;
-		transition: background-color 0.3s ease;
+		transition: all 0.3s ease;
+		display: flex;
+		align-items: center;
+		gap: 8px;
 	}
 
-	.search-container button:hover {
+	.search-button:hover {
 		background-color: #e07e00;
+		transform: translateX(2px);
+	}
+
+	.button-text {
+		font-weight: bold;
+	}
+
+	.button-icon {
+		font-size: 20px;
+		transition: transform 0.3s ease;
+	}
+
+	.search-button:hover .button-icon {
+		transform: translateX(5px);
 	}
 
 	.controls {
@@ -261,60 +488,138 @@
 		display: flex;
 		justify-content: center;
 		gap: 12px;
-		flex-wrap: nowrap;
+		flex-wrap: wrap;
 		flex: 1;
-		overflow-x: auto;
+		align-items: center;
 	}
 
-	.filters button {
+	.filter-label {
+		color: #888;
+		font-weight: 600;
+		font-size: 14px;
+		margin-right: 5px;
+	}
+
+	.filter-btn {
 		background-color: #222;
-		border: none;
-		padding: 10px 20px;
-		border-radius: 20px;
+		border: 2px solid #333;
+		padding: 10px 18px;
+		border-radius: 25px;
 		color: #bbb;
 		font-weight: 600;
 		cursor: pointer;
-		transition: background-color 0.3s ease, color 0.3s ease;
+		transition: all 0.3s ease;
 		white-space: nowrap;
-		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 15px;
 	}
 
-	.filters button:hover,
-	.filters button.active {
+	.filter-btn:hover {
+		background-color: #2a2a2a;
+		border-color: #ff9000;
+		transform: translateY(-2px);
+	}
+
+	.filter-btn.active {
 		background-color: #ff9000;
 		color: black;
+		border-color: #ff9000;
+		box-shadow: 0 4px 15px rgba(255, 144, 0, 0.4);
 	}
 
 	.sort-controls {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: 12px;
+		background: #222;
+		padding: 10px 20px;
+		border-radius: 25px;
+		border: 2px solid #333;
+	}
+
+	.sort-icon {
+		font-size: 16px;
 	}
 
 	.sort-controls label {
 		color: #ddd;
 		font-weight: 600;
 		font-size: 14px;
+		display: flex;
+		align-items: center;
+		gap: 6px;
 	}
 
-	.sort-controls select {
-		padding: 10px 16px;
-		border-radius: 10px;
+	.sort-select {
+		padding: 8px 16px;
+		border-radius: 15px;
 		border: none;
-		background-color: #222;
+		background-color: #2a2a2a;
 		color: #fff;
 		font-size: 14px;
 		cursor: pointer;
-		transition: background-color 0.3s ease;
+		transition: all 0.3s ease;
 		font-weight: 600;
 	}
 
-	.sort-controls select:hover {
+	.sort-select:hover {
 		background-color: #333;
 	}
 
-	.sort-controls select:focus {
+	.sort-select:focus {
 		outline: 2px solid #ff9000;
+	}
+
+	/* Results Info */
+	.results-info {
+		max-width: 1200px;
+		margin: 0 auto 20px auto;
+		padding: 15px 25px;
+		background: rgba(255, 144, 0, 0.1);
+		border-radius: 15px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		border: 1px solid rgba(255, 144, 0, 0.3);
+		margin-left: 20px;
+		margin-right: 20px;
+	}
+
+	.results-info p {
+		margin: 0;
+		color: #fff;
+		font-size: 16px;
+	}
+
+	.results-info strong {
+		color: #ff9000;
+	}
+
+	.results-info em {
+		color: #ffb347;
+		font-style: normal;
+		font-weight: 600;
+	}
+
+	.reset-filters,
+	.reset-button {
+		background: #ff9000;
+		border: none;
+		color: #000;
+		padding: 8px 20px;
+		border-radius: 20px;
+		font-weight: bold;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		font-size: 14px;
+	}
+
+	.reset-filters:hover,
+	.reset-button:hover {
+		background: #e07e00;
+		transform: translateY(-2px);
 	}
 
 	.card-container {
@@ -405,5 +710,121 @@
 		font-size: 13px;
 		color: #999;
 		margin-top: 8px;
+	}
+
+	/* No Results & Loading Styles */
+	.no-results {
+		grid-column: 1 / -1;
+		text-align: center;
+		padding: 80px 20px;
+		background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+		border-radius: 20px;
+		border: 2px dashed rgba(255, 144, 0, 0.3);
+	}
+
+	.no-results-icon {
+		font-size: 80px;
+		display: block;
+		margin-bottom: 20px;
+		animation: searchBounce 2s ease-in-out infinite;
+	}
+
+	@keyframes searchBounce {
+		0%, 100% {
+			transform: translateY(0) rotate(0deg);
+		}
+		50% {
+			transform: translateY(-15px) rotate(10deg);
+		}
+	}
+
+	.no-results h2 {
+		color: #ff9000;
+		font-size: 32px;
+		margin: 0 0 15px 0;
+	}
+
+	.no-results p {
+		color: #aaa;
+		font-size: 18px;
+		margin: 0 0 30px 0;
+	}
+
+	/* Loading Spinner */
+	.loading-spinner {
+		text-align: center;
+		padding: 40px;
+		color: #888;
+	}
+
+	.spinner {
+		width: 50px;
+		height: 50px;
+		margin: 0 auto 20px auto;
+		border: 4px solid #333;
+		border-top-color: #ff9000;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.loading-spinner p {
+		color: #888;
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	/* Responsive Design */
+	@media (max-width: 768px) {
+		.welcome-banner h1 {
+			font-size: 32px;
+		}
+
+		.welcome-banner > p {
+			font-size: 16px;
+		}
+
+		.welcome-features {
+			grid-template-columns: 1fr;
+			gap: 20px;
+		}
+
+		.search-container {
+			flex-direction: column;
+		}
+
+		.search-button {
+			border-radius: 30px;
+			width: 100%;
+			margin-top: 10px;
+		}
+
+		.search-container input[type='text'] {
+			border-radius: 30px;
+		}
+
+		.controls {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.filters {
+			order: 2;
+		}
+
+		.sort-controls {
+			order: 1;
+			justify-content: center;
+		}
+
+		.card-container {
+			grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+			gap: 20px;
+		}
 	}
 </style>

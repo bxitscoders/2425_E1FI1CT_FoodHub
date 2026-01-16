@@ -1,9 +1,16 @@
 <script lang="ts">
 	import type { PageData } from "./$types";
+	import { authClient } from "$lib/auth-client";
+	import { isAdmin } from "$lib/admin";
+	import { enhance } from "$app/forms";
 
 	let { data }: { data: PageData } = $props();
 
 	const { post, imageUrl, creator, ratings } = data;
+	const session = authClient.useSession();
+	
+	// Client-side Admin-Check
+	const isUserAdmin = $derived($session.data?.user ? isAdmin($session.data.user) : false);
 </script>
 
 <svelte:head>
@@ -48,7 +55,28 @@
 
 			<div class="post-meta">
 				<span class="meta-item">📅 {new Date(post.createdAt).toLocaleDateString('de-DE')}</span>
+				{#if post.category}
+					<span class="meta-item">🏷️ {post.category}</span>
+				{/if}
 			</div>
+
+			{#if isUserAdmin}
+				<div class="admin-actions">
+					<form method="POST" action="?/deletePost" use:enhance={() => {
+						return async ({ result }) => {
+							if (confirm('Möchtest du diesen Post wirklich löschen?')) {
+								if (result.type === 'redirect') {
+									alert('Post erfolgreich gelöscht!');
+								}
+							}
+						};
+					}}>
+						<button type="submit" class="admin-btn delete-btn">
+							🗑️ Post löschen
+						</button>
+					</form>
+				</div>
+			{/if}
 		</div>
 
 		<div class="post-content">
@@ -378,6 +406,35 @@
 	.back-link:hover {
 		color: #ffaa33;
 		text-decoration: underline;
+	}
+
+	.admin-actions {
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 2px solid #333;
+		display: flex;
+		gap: 10px;
+	}
+
+	.admin-btn {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		font-size: 14px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+
+	.delete-btn {
+		background-color: #dc2626;
+		color: white;
+	}
+
+	.delete-btn:hover {
+		background-color: #b91c1c;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
 	}
 
 	@media (max-width: 768px) {

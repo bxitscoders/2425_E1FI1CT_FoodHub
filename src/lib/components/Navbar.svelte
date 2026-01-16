@@ -7,6 +7,8 @@
 
 	const session = authClient.useSession();
 
+	let searchQuery = $state('');
+
 	async function signOut() {
 		await authClient.signOut();
 		await goto("/", { invalidateAll: true });
@@ -17,6 +19,18 @@
 			provider: "github",
 			callbackURL: page.url.toString()
 		});
+	}
+
+	function handleSearch() {
+		if (searchQuery.trim()) {
+			goto(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+		}
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			handleSearch();
+		}
 	}
 </script>
 
@@ -32,8 +46,19 @@
 			<a href="/" class="nav-link">Startseite</a>
 			<a href="/top" class="nav-link">Top Gerichte</a>
 			<a href="/categories" class="nav-link">Kategorien</a>
-			<a href="/upload" class="nav-link">Bewerten</a>
+			<a href="/upload" class="nav-link">Upload</a>
 			<a href="/clicker" class="nav-link">Clicker Game</a>
+		</div>
+
+		<div class="nav-search">
+			<input
+				type="text"
+				bind:value={searchQuery}
+				onkeydown={handleKeydown}
+				placeholder="Suche..."
+				class="search-input"
+			/>
+			<button onclick={handleSearch} class="search-btn">🔍</button>
 		</div>
 
 		{#if $session.data}
@@ -92,6 +117,48 @@
 		gap: 32px;
 		flex: 1;
 		justify-content: center;
+	}
+
+	.nav-search {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0 20px;
+	}
+
+	.search-input {
+		padding: 8px 16px;
+		background-color: #222;
+		border: 1px solid #444;
+		border-radius: 20px;
+		color: #fff;
+		font-size: 14px;
+		width: 200px;
+		transition: all 0.3s ease;
+	}
+
+	.search-input:focus {
+		outline: none;
+		border-color: #ff9000;
+		background-color: #2a2a2a;
+		width: 250px;
+	}
+
+	.search-input::placeholder {
+		color: #888;
+	}
+
+	.search-btn {
+		background: none;
+		border: none;
+		font-size: 20px;
+		cursor: pointer;
+		padding: 4px 8px;
+		transition: transform 0.2s ease;
+	}
+
+	.search-btn:hover {
+		transform: scale(1.1);
 	}
 
 	.nav-link {

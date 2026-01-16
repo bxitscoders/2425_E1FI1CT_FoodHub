@@ -2,9 +2,11 @@
 	const categories = [
 		{ name: 'Pizza', icon: '🍕', color: '#ff6b35' },
 		{ name: 'Burger', icon: '🍔', color: '#ff9000' },
-		{ name: 'Asiatisch', icon: '🍜', color: '#ffd700' },
 		{ name: 'Vegan', icon: '🥗', color: '#4caf50' },
+		{ name: 'Asiatisch', icon: '🍜', color: '#ffd700' },
 		{ name: 'Desserts', icon: '🍰', color: '#ff4081' },
+		{ name: 'Italienisch', icon: '🍝', color: '#e74c3c' },
+		{ name: 'Mexikanisch', icon: '�', color: '#f39c12' },
 	];
 </script>
 
