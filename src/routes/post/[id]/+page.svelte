@@ -7,6 +7,7 @@
 	import Rating from "$lib/components/posts/Rating.svelte";
 	import { authClient } from "$lib/auth-client";
 	import type { User } from "$lib/auth-client";
+	import type { RatingDTO } from "$lib/dto/rating";
 
 	let { data } = $props();
 
@@ -14,6 +15,7 @@
 	let commentText = $state("");
 	let comments = $state(data.comments);
 	let userRating = $state(0);
+	let ratingChangeable = $state(false);
 
 	const session = authClient.useSession();
 
@@ -24,8 +26,13 @@
 
 		const ratings = await getRatings({ postId: data.post.id });
 		const existingRating = ratings.find((rating: RatingDTO) => rating.userId === $session.data!.user.id);
-		if (!existingRating) return;
-		userRating = existingRating.value;
+
+		if (existingRating) {
+			userRating = existingRating.value;
+			return;
+		}
+
+		ratingChangeable = true;
 	});
 
 	const handleRatingChange = async (newValue: number) => {
@@ -59,10 +66,7 @@
 
 <div class="mx-auto max-w-3xl px-4 py-6">
 	<!-- Back button -->
-	<a
-		href="/"
-		class="mb-4 inline-flex items-center gap-2 text-orange-500 transition-colors hover:text-orange-400"
-	>
+	<a href="/" class="mb-4 inline-flex items-center gap-2 text-orange-500 transition-colors hover:text-orange-400">
 		<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 		</svg>
@@ -74,11 +78,7 @@
 		<div class="px-6 py-4">
 			<!-- Post Header -->
 			<div class="mb-4 flex items-start gap-3">
-				<img
-					src={postCreator?.image}
-					class="h-12 w-12 rounded-full"
-					alt="User Avatar"
-				/>
+				<img src={postCreator?.image} class="h-12 w-12 rounded-full" alt="User Avatar" />
 				<div class="flex-1">
 					<div class="flex items-center gap-2">
 						<a href="/@{postCreator?.handle}" class="font-bold text-[#e7e9ea] hover:underline">
@@ -99,7 +99,7 @@
 				<h1 class="mb-3 text-2xl font-bold text-[#e7e9ea]">{data.post.title}</h1>
 			{/if}
 
-			<p class="mb-4 whitespace-pre-wrap text-[15px] leading-6 text-[#e7e9ea]">
+			<p class="mb-4 text-[15px] leading-6 whitespace-pre-wrap text-[#e7e9ea]">
 				{data.post.content}
 			</p>
 
@@ -108,31 +108,27 @@
 				<div class="mb-4 h-96 w-full animate-pulse rounded-2xl border border-gray-800 bg-gray-800"></div>
 			{:then imageUrl}
 				{#if imageUrl}
-					<img
-						src={imageUrl}
-						class="mb-4 w-full rounded-2xl border border-gray-800"
-						alt="Post"
-					/>
+					<img src={imageUrl} class="mb-4 w-full rounded-2xl border border-gray-800" alt="Post" />
 				{/if}
 			{/await}
 
-		<!-- Rating -->
-		<div class="flex items-center gap-3 border-t border-gray-800 pt-4">
-			<Rating
-				max={5}
-				changable={!!$session.data?.user}
-				bind:value={userRating}
-				onchange={handleRatingChange}
-			/>
-			{#if data.post.rating.amount > 0}
-				{@const suffix = data.post.rating.amount === 1 ? "" : "s"}
-				<span class="text-[13px] text-[#71767b]">
-					{data.post.rating.amount} Rating{suffix} · Average: {data.post.rating.average.toFixed(1)}
-				</span>
-			{/if}
+			<!-- Rating -->
+			<div class="flex items-center gap-3 border-t border-gray-800 pt-4">
+				<Rating
+					max={5}
+					changable={!!$session.data?.user && ratingChangeable}
+					bind:value={data.post.rating.average}
+					onchange={handleRatingChange}
+				/>
+				{#if data.post.rating.amount > 0}
+					{@const suffix = data.post.rating.amount === 1 ? "" : "s"}
+					<span class="text-[13px] text-[#71767b]">
+						{data.post.rating.amount} Rating{suffix} · Average: {data.post.rating.average.toFixed(1)}
+					</span>
+				{/if}
+			</div>
 		</div>
 	</div>
-</div>
 
 	<!-- Comments Section -->
 	<div class="mt-6">
@@ -158,7 +154,7 @@
 						{...createComment.fields.content.as("text")}
 						bind:value={commentText}
 						placeholder="Write a comment..."
-						class="w-full resize-none rounded-lg border border-gray-700 bg-zinc-900 px-4 py-3 text-white placeholder-gray-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+						class="w-full resize-none rounded-lg border border-gray-700 bg-zinc-900 px-4 py-3 text-white placeholder-gray-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
 						rows="3"
 					></textarea>
 				</div>
@@ -183,32 +179,21 @@
 			{#each comments as comment (comment.id)}
 				<div class="rounded-xl border border-gray-800 bg-black p-4">
 					<div class="mb-3 flex items-start gap-3">
-						<img
-							src={comment.user.image}
-							class="h-10 w-10 rounded-full"
-							alt={comment.user.name}
-						/>
+						<img src={comment.user.image} class="h-10 w-10 rounded-full" alt={comment.user.name} />
 						<div class="flex-1">
 							<div class="flex items-center gap-2">
-								<a
-									href="/@{comment.user.handle}"
-									class="font-bold text-[#e7e9ea] hover:underline"
-								>
+								<a href="/@{comment.user.handle}" class="font-bold text-[#e7e9ea] hover:underline">
 									{comment.user.name}
 								</a>
-								<a
-									href="/@{comment.user.handle}"
-									class="text-sm text-[#71767b] hover:underline"
-								>
+								<a href="/@{comment.user.handle}" class="text-sm text-[#71767b] hover:underline">
 									@{comment.user.handle}
 								</a>
 								<span class="text-[#71767b]">·</span>
 								<span class="text-sm text-[#71767b]">{formatDate(comment.createdAt)}</span>
 							</div>
-
 						</div>
 					</div>
-					<p class="whitespace-pre-wrap text-[15px] text-[#e7e9ea]">
+					<p class="text-[15px] whitespace-pre-wrap text-[#e7e9ea]">
 						{comment.content}
 					</p>
 				</div>

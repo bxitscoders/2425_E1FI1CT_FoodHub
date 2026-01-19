@@ -36,7 +36,9 @@
 </script>
 
 <button
-	class={["inline-flex gap-1 select-none", { "cursor-pointer": changable }]}
+	class="inline-flex gap-1 select-none"
+	class:cursor-pointer={changable}
+	class:cursor-default={!changable}
 	role="slider"
 	aria-valuemin="0"
 	aria-valuemax={max}

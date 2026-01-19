@@ -1,4 +1,4 @@
-type RatingDTO = {
+export type RatingDTO = {
 	userId: string;
 	value: number;
 	createdAt: Date;
