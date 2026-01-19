@@ -43,19 +43,15 @@
 				</div>
 				<div class="stat">
 					<div class="stat-number text-3xl font-bold text-orange-500">
-						{data.posts.reduce((sum, post) => sum + post.rating.amount, 0)}
+						{data.userRatings.count}
 					</div>
-					<div class="stat-label text-sm text-gray-400">Ratings Received</div>
+					<div class="stat-label text-sm text-gray-400">Ratings Given</div>
 				</div>
 				<div class="stat">
 					<div class="stat-number text-3xl font-bold text-orange-500">
-						{data.posts.length > 0
-							? (
-									data.posts.reduce((sum, post) => sum + post.rating.average, 0) / data.posts.length
-								).toFixed(1)
-							: "0.0"}
+						{data.userRatings.average > 0 ? data.userRatings.average.toFixed(1) : "0.0"}
 					</div>
-					<div class="stat-label text-sm text-gray-400">Avg Rating</div>
+					<div class="stat-label text-sm text-gray-400">Avg Rating Given</div>
 				</div>
 			</div>
 		</div>
