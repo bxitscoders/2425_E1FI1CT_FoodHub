@@ -162,7 +162,7 @@
 					<button
 						type="submit"
 						disabled={!commentText.trim()}
-						class="rounded-full bg-orange-500 px-6 py-2 font-bold text-black transition-all hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
+						class="cursor-pointer rounded-full bg-orange-500 px-6 py-2 font-bold text-black transition-all hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						Post Comment
 					</button>
