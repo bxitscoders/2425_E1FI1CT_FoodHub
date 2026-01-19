@@ -47,7 +47,7 @@
 			</div>
 		{:else}
 			<button
-				class="rounded-full bg-[#1d9bf0] px-4 py-1.5 font-bold text-white transition-colors hover:bg-[#1a8cd8]"
+				class="rounded-full bg-orange-400 px-4 py-1.5 font-bold text-black transition-colors hover:bg-orange-500"
 				onclick={signIn}>Log in</button
 			>
 		{/if}
