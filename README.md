@@ -16,9 +16,7 @@ FoodHub ermöglicht es Nutzern, Bilder von Kantinen-Gerichten hochzuladen, diese
 ## Tech Stack
 
 **Backend:**
-- ASP.NET Core (C#)
-- Entity Framework Core
-- JWT Authentication
+- SvelteKit mit remote Functions
 
 **Frontend:**
 - SvelteKit
